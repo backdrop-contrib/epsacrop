@@ -1,0 +1,9 @@
+; $Id$
+name = Epsa Crop
+description = Module permettant de gérer les crops des images
+package = EPSA
+version = 6.x-0.1-dev
+core = 6.x
+dependencies[] = jquery_ui
+dependencies[] = imagefield
+dependencies[] = imagecache

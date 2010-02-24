@@ -2,7 +2,6 @@ var EPSACrop = {
  api: null,
  preset: null,
  delta: null,
-// _presets: {},
  presets: {},
  init: false,
  dialog: function(delta, img, trueSize) {
@@ -20,7 +19,6 @@ var EPSACrop = {
        },
        buttons: {
           Save: function() {
-            $('#edit-epsacropscalled').val(JSON.stringify(EPSACrop._presets));
             $('#edit-epsacropcoords').val(JSON.stringify(EPSACrop.presets));
             $(this).dialog('close');
             $('#EPSACropDialog').remove();
@@ -33,15 +31,14 @@ var EPSACrop = {
        close: function() {
           $('#EPSACropDialog').remove();
        }
-    }).load(Drupal.settings.epsacrop.base+'crop/dialog', function(){
-       //try{
+    }).load(Drupal.settings.epsacrop.base+'?q=crop/dialog', function(){
+       try{
 	       var preset = $('.epsacrop-presets-menu a[@class=selected]').attr('rel'); 
 	       var coords = preset.split('x');
 	       EPSACrop.preset = preset;
 	       EPSACrop.delta = delta;
 	       if($('#edit-epsacropcoords').val().length > 0 && EPSACrop.init == false) {
-	    	   // EPSACrop._presets = eval('(' + $('#edit-epsacropscalled').val() + ')'); //JSON.parse($('#edit-epsacropscalled').val());
-           EPSACrop.presets = eval('(' + $('#edit-epsacropcoords').val() + ')'); //JSON.parse($('#edit-epsacropcoords').val()); 
+           EPSACrop.presets = eval('(' + $('#edit-epsacropcoords').val() + ')');
            EPSACrop.init = true;
 	       }
 	       if((typeof EPSACrop.presets[EPSACrop.delta] == 'object') && (typeof EPSACrop.presets[EPSACrop.delta][EPSACrop.preset] == 'object') ) {
@@ -57,10 +54,11 @@ var EPSACrop = {
               trueSize: trueSize,
               onSelect: EPSACrop.update
            }); // $.Jcrop
-          }, 100); // Sleep < d'une second
-       //}catch(err) {
-    	 //  alert(err.description);
-       //}
+          }, 1000); // Sleep < d'une second
+       }catch(err) {
+         console.log(err);
+    	   alert(Drupal.t("Error on load : @error", {'@error': err.message}));
+       }
     }); // fin load
  }, // dialog
  crop: function( preset ) {
@@ -79,16 +77,9 @@ var EPSACrop = {
  update: function( c ) {
     var preset 	= EPSACrop.preset;
     var delta 	= EPSACrop.delta;
-    // Informations de crop
     if(typeof EPSACrop.presets[delta] != 'object') {
     	EPSACrop.presets[delta] = {};
     }
     EPSACrop.presets[delta][preset] = c;
-    
-    // Informations de scalle
-    // if(typeof EPSACrop._presets[delta] != 'object') {
-    // 	EPSACrop._presets[delta] = {};
-    // }
-    // EPSACrop._presets[delta][preset] = EPSACrop.api.tellScaled();
  }
 };

@@ -40,7 +40,24 @@ function epsacrop_menu() {
     'access callback' => TRUE,
     'type' => MENU_CALLBACK
   );
+  $items['admin/settings/epsacrop'] = array(
+    'title' => 'EPSA Crop',
+    'page callback' => 'drupal_get_form',
+    'page arguments' => array('epsacrop_settings'),
+    'access arguments' => array('administer site configuration'),
+  );
   return $items;
+}
+
+function epsacrop_settings(&$form_state) {
+  $form = array();
+  $form['epsacrop_box_size'] = array(
+    '#type' => 'textfield',
+    '#title' => t("Box Size"),
+    '#default_value' => variable_get('epsacrop_box_size', '512x384'),
+    '#description' => t("Size for admin thumbnail")
+  );
+  return system_settings_form($form);
 }
 
 /**
@@ -202,7 +219,7 @@ function _epsacrop_get_fid_from_path($path) {
   static $fids = array();
   $fids[$path] = 0;
   if (empty($fids[$path])) {
-    $fids[$path] = (int) db_result(db_query_range("SELECT fid FROM {files} WHERE filepath = '%s'", $path, 0, 1));
+    $fids[$path] = (int) db_result(db_query_range("SELECT f.fid FROM {files} f LEFT JOIN {epsacrop_files} e ON e.fid = f.fid WHERE f.filepath = '%s' AND e.fid IS NOT NULL", $path, 0, 1));
   }
   return $fids[$path];
 }
@@ -212,6 +229,55 @@ function _epsacrop_get_path_from_fid($fid) {
     return (string) db_result(db_query_range("SELECT filepath FROM {files} WHERE fid = %d", $fid, 0, 1));
   }
   return FALSE;
+}
+
+function _epsacrop_create_thumb($source, $destination) {
+  if (!is_file($source)) {
+    return FALSE;
+  }
+
+  $info = image_get_info($source);
+  $size = explode('x', variable_get('epsacrop_box_size', '512x384'));
+
+  if (is_file($destination)) {
+    $thumb = image_get_info($destination);
+    if ( $thumb['width'] != $size[0] && $thumb['height'] != $size[1] && ($info['width'] > $size[0] || $info['height'] > $size[1])) {
+      unlink($destination);
+    }
+    else{
+      return;
+    }
+  }
+  $directories = explode('/', $destination);
+  array_pop($directories);
+  $file_system = file_directory_path();
+  foreach ($directories as $directory) {
+    $full_path = isset($full_path) ? $full_path .'/'. $directory : $directory;
+    if (strpos($full_path, $file_system) === 0) {
+      field_file_check_directory($full_path, FILE_CREATE_DIRECTORY);
+    }
+  }
+  if ($info['width'] <= $size[0] && $info['height'] <= $size[1]) {
+    file_copy($source, $destination);
+  }
+  elseif (image_get_toolkit() && @image_scale($source, $destination, $size[0], $size[1])) {
+    @chmod($destination, 0644);
+  }
+  else {
+    drupal_set_message(t("An image thumbnail was not able to be created."), 'error');
+  }
+}
+
+function _epsacrop_thumb_filepath($filepath, $create = TRUE) {
+  if (empty($filepath)) {
+    return FALSE;
+  }
+  $short_path = preg_replace('/^'. preg_quote(file_directory_path(), '/') .'/', '', $filepath);
+  $dest = file_directory_path() .'/epsacrop_thumbs'. $short_path;
+  if ($create) {
+    _epsacrop_create_thumb($filepath, $dest);
+  }
+  return $dest;
 }
 
 /**
@@ -240,6 +306,7 @@ function theme_epsacrop_widget_item($element) {
     if (!empty($filepath)) {
       global $base_root;
       $info = @getimagesize('./'. $filepath);
+      $filepath = _epsacrop_thumb_filepath($filepath);
       $element['epsacrop'] = array(
         '#type' => 'markup',
         '#value' => '[<a href="javascript:EPSACrop.dialog(\''. $element['fid']['#value'] .'\', \''. $base_root . base_path() . $filepath .'\', ['. $info[0] .', '. $info[1] .']);">'. t("Manage image crops") .'</a>]'

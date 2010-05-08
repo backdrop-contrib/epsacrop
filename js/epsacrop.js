@@ -5,7 +5,7 @@ var EPSACrop = {
  presets: {},
  init: false,
  dialog: function(delta, img, trueSize) {
-    $('body').append('<div title="Cropping Image" id="EPSACropDialog"><img src="'+Drupal.settings.epsacrop.base+Drupal.settings.epsacrop.path+'/img/loading.gif" /></div>');
+    $('body').find('#EPSACropDialog').remove().end().append('<div title="Cropping Image" id="EPSACropDialog"><img src="'+Drupal.settings.epsacrop.base+Drupal.settings.epsacrop.path+'/img/loading.gif" /></div>');
     $('#EPSACropDialog').dialog({
        bgiframe: true,
        height: 600,
@@ -33,7 +33,7 @@ var EPSACrop = {
        }
     }).load(Drupal.settings.epsacrop.base+'?q=crop/dialog', function(){
        try{
-	       var preset = $('.epsacrop-presets-menu a[@class=selected]').attr('rel'); 
+	       var preset = $('.epsacrop-presets-menu a[class=selected]').attr('rel'); 
 	       var coords = preset.split('x');
 	       EPSACrop.preset = preset;
 	       EPSACrop.delta = delta;
@@ -44,13 +44,11 @@ var EPSACrop = {
 	       if((typeof EPSACrop.presets[EPSACrop.delta] == 'object') && (typeof EPSACrop.presets[EPSACrop.delta][EPSACrop.preset] == 'object') ) {
 	    	   var c = EPSACrop.presets[EPSACrop.delta][EPSACrop.preset];
 	       }
-	       $('#epsacrop-target').attr({'src': img, 'width': trueSize[0], 'height': trueSize[1]});
+	       $('#epsacrop-target').attr({'src': img});
          setTimeout(function(){
            EPSACrop.api = $.Jcrop('#epsacrop-target', {
               aspectRatio: (coords[0] / coords[1]),
               setSelect: (typeof c == 'object') ? [c.x, c.y, c.x2, c.y2] : [0, 0, coords[0], coords[1]],
-              boxWidth: 512,
-              boxHeight: 384,
               trueSize: trueSize,
               onSelect: EPSACrop.update
            }); // $.Jcrop
@@ -63,7 +61,7 @@ var EPSACrop = {
  }, // dialog
  crop: function( preset ) {
     $('.epsacrop-presets-menu a').each(function(i){ $(this).removeClass('selected') });
-    $('.epsacrop-presets-menu a[@rel='+preset+']').addClass('selected');
+    $('.epsacrop-presets-menu a[rel='+preset+']').addClass('selected');
     var coords = preset.split('x');
     EPSACrop.preset = preset;
     if(typeof EPSACrop.presets[EPSACrop.delta] == 'object' && typeof EPSACrop.presets[EPSACrop.delta][EPSACrop.preset] == 'object' ) {

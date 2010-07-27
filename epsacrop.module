@@ -4,13 +4,12 @@
  * @file
  * The main file of module
  */
-
-if (defined('MAINTENANCE_MODE') && MAINTENANCE_MODE == 'install') {
-  define('EPSACROP_JCROP_PATH', dirname(__FILE__) .'/Jcrop');
+$path = (defined('MAINTENANCE_MODE') && MAINTENANCE_MODE == 'install') ? dirname(__FILE__) : drupal_get_path('module', 'epsacrop');
+$path.='/Jcrop';
+if(module_exists('libraries')) {
+  $path = libraries_get_path('Jcrop');
 }
-else {
-  define('EPSACROP_JCROP_PATH', drupal_get_path('module', 'epsacrop') .'/Jcrop');
-}
+define('EPSACROP_JCROP_PATH', $path);
 
 /**
  * 

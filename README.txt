@@ -2,7 +2,7 @@ $Id$
 
 -- SUMMARY --
 
-EPSA Crop is a module that allows a user to choose coordinates for different presets on an image. If a user defines coordinates EPSACrop will override the Imagecache process and will set new coordinates.
+EPSA Crop is a module that allows a user to choose coordinates for different presets on an image. If a user defines coordinates EPSACrop will alter the Imagecache process and will set new coordinates.
 
 Every preset with the crop action is handled by EPSACrop. If the user don't change the coordinates, the normal imagecache process is applied.
 
@@ -25,14 +25,14 @@ For json2.js you can minified, but conserve the same name (json2.js)
 -- INSTALLATION --
 
 1. Extract epsacrop on your module directory (ex. sites/all/modules)
-2. Download JCrop librarie and install this on epsacrop directory (ex. sites/all/modules/epsacrop)
+2. Download JCrop librarie and install this on epsacrop directory (ex. sites/all/modules/epsacrop) or sites/all/libraries
   2.1 You would get, for example, sites/all/modules/epsacrop/Jcrop
 3. Download json2.js and copy file in epsacrop/js directory
 4. Go to admin/build/modules and enable EPSA Crop
 
 -- CONFIGURATION --
 
-Currently you don't need configure the module. He work for every imagefield field have.
+You can go at admin/settings/epsacrop to set thumbnail size (needed for large size images)
 
 -- TROUBLESHOOTING --
 

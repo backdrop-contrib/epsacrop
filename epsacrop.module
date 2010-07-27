@@ -4,20 +4,19 @@
  * @file
  * The main file of module
  */
-
-if (defined('MAINTENANCE_MODE') && MAINTENANCE_MODE == 'install') {
-  define('EPSACROP_JCROP_PATH', dirname(__FILE__) .'/Jcrop');
+$path = (defined('MAINTENANCE_MODE') && MAINTENANCE_MODE == 'install') ? dirname(__FILE__) : drupal_get_path('module', 'epsacrop');
+$path.='/Jcrop';
+if(module_exists('libraries')) {
+  $path = libraries_get_path('Jcrop');
 }
-else {
-  define('EPSACROP_JCROP_PATH', drupal_get_path('module', 'epsacrop') .'/Jcrop');
-}
+define('EPSACROP_JCROP_PATH', $path);
 
 /**
  * 
  * Implementation of hook_init
  */
 function epsacrop_init() {
-  if (arg(0) == 'node' && (arg(1) == 'add' || arg(2) == 'edit')) {
+  if ((arg(0) == 'node' || arg(0) == "user") && (arg(1) == 'add' || arg(2) == 'edit' || arg(3) == "edit")) {
     drupal_add_js(array('epsacrop' => array('base' => base_path(), 'path' => drupal_get_path('module', 'epsacrop'))), 'setting');
     jquery_ui_add(array('ui.dialog'));
     drupal_add_js(EPSACROP_JCROP_PATH .'/js/jquery.Jcrop.min.js');
@@ -49,6 +48,7 @@ function epsacrop_menu() {
   return $items;
 }
 
+
 function epsacrop_settings(&$form_state) {
   $form = array();
   $form['epsacrop_box_size'] = array(
@@ -58,6 +58,16 @@ function epsacrop_settings(&$form_state) {
     '#description' => t("Size for admin thumbnail")
   );
   return system_settings_form($form);
+}
+
+/**
+ * Implementation of hook_menu_alter
+ */
+function epsacrop_menu_alter(&$items) {
+  $items[file_directory_path() .'/imagecache']['page callback'] = 'epsacrop_crop';
+  $items[file_directory_path() .'/imagecache']['module'] = 'epsacrop';
+  $items['system/files/imagecache']['page callback'] = 'epsacrop_crop_private';
+  $items['system/files/imagecache']['module'] = 'epsacrop';
 }
 
 /**
@@ -290,10 +300,13 @@ function epsacrop_theme($existing, $type, $theme, $path) {
   $widget['function'] = 'theme_epsacrop_widget_item';
   $widget['theme paths'][]  = $path;
   
+  /*
   $imagecache = $existing['imagecache'];
   $imagecache['function'] = 'theme_epsacrop';
   $imagecache['theme paths'][] = $path;
-  return array('imagefield_widget_item' => $widget, 'imagecache' => $imagecache);
+  */
+  // return array('imagefield_widget_item' => $widget, 'imagecache' => $imagecache);
+  return array('imagefield_widget_item' => $widget);
 }
 
 /**
@@ -309,49 +322,138 @@ function theme_epsacrop_widget_item($element) {
       $filepath = _epsacrop_thumb_filepath($filepath);
       $element['epsacrop'] = array(
         '#type' => 'markup',
-        '#value' => '[<a href="javascript:EPSACrop.dialog(\''. $element['fid']['#value'] .'\', \''. $base_root . base_path() . $filepath .'\', ['. $info[0] .', '. $info[1] .']);">'. t("Manage image crops") .'</a>]'
+        '#value' => '[<a rel="nozoom" href="javascript:EPSACrop.dialog(\''. $element['fid']['#value'] .'\', \''. $base_root . base_path() . $filepath .'\', ['. $info[0] .', '. $info[1] .']);">'. t("Manage image crops") .'</a>]'
       );
     }
   }
   return theme('filefield_widget_item', $element);
 }
 
-function theme_epsacrop($presetname, $path, $alt = '', $title = '', $attributes = NULL, $getsize = TRUE) {
-  if (is_null($attributes)) {
-    $attributes['class'] = 'imagecache imagecache-'. $presetname;
+/**
+ * callback for handling public files imagecache requests.
+ */
+function epsacrop_crop(){
+  $args = func_get_args();
+  $preset = check_plain(array_shift($args));
+  $path = implode('/', $args);
+  _epsacrop_crop($preset, $path);
+}
+
+/**
+ * callback for handling private files imagecache requests
+ */
+function epsacrop_crop_private(){
+  $args = func_get_args();
+  $preset = check_plain(array_shift($args));
+  $source = implode('/', $args);
+
+  if (user_access('view imagecache '. $preset) && !in_array(-1, module_invoke_all('file_download', $source))) {
+    _epsacrop_crop($preset, $source);
+  }
+  else {
+    // if there is a 403 image, display it.
+    $accesspath = file_create_path('imagecache/'. $preset .'.403.png');
+    if (is_file($accesspath)) {
+      imagecache_transfer($accesspath);
+      exit;
+    }
+    header('HTTP/1.0 403 Forbidden');
+    exit;
+  }
+}
+
+function _epsacrop_crop($presetname, $path){
+if (!$preset = imagecache_preset_by_name($presetname)) {
+    // Send a 404 if we don't know of a preset.
+    header("HTTP/1.0 404 Not Found");
+    exit;
   }
 
-  if ($getsize && ($image = image_get_info(imagecache_create_path($presetname, $path)))) {
-    $attributes['width'] = $image['width'];
-    $attributes['height'] = $image['height'];
+  // umm yeah deliver it early if it is there. especially useful
+  // to prevent lock files from being created when delivering private files.
+  $dst = imagecache_create_path($preset['presetname'], $path);
+  if (is_file($dst)) {
+    imagecache_transfer($dst);
   }
 
-  $attributes = drupal_attributes($attributes);
-  $imagecache_url = imagecache_create_url($presetname, $path);
-  $imagecache_path = imagecache_create_path($presetname, $path);
+  // preserve path for watchdog.
+  $src = $path;
 
-  if (!file_exists($imagecache_path)) {
-    $preset = imagecache_preset_by_name($presetname);
-    if ($preset) {
-      $data = _epsacrop_get_crop_action($preset);
-      $_preset = $data['width'] .'x'. $data['height'];
-      $fid = _epsacrop_get_fid_from_path($path);
-      $coords = _epsacrop_get_coords_from_fid($fid);
-      if (!empty($coords[$_preset])) {
-        if ($imgapi = imageapi_image_open($path)) {
-          if (imageapi_image_crop($imgapi, $coords[$_preset]['x'], $coords[$_preset]['y'], $coords[$_preset]['w'], $coords[$_preset]['h'])) {
-            if (imageapi_image_resize($imgapi, $data['width'], $data['height'])) {
-            $mondir = dirname($imagecache_path);
-            if (!is_dir($mondir)) {
-              mkdir($mondir, 0775, TRUE);
-            }
-            imageapi_image_close($imgapi, $imagecache_path);
-            return '<img src="'. $imagecache_url .'" alt="'. check_plain($alt) .'" title="'. check_plain($title) .'" '. $attributes .' />';
-            }
-          }
-        }
+  // Check if the path to the file exists.
+  if (!is_file($src) && !is_file($src = file_create_path($src))) {
+    watchdog('imagecache', '404: Unable to find %image ', array('%image' => $src), WATCHDOG_ERROR);
+    header("HTTP/1.0 404 Not Found");
+    exit;
+  };
+
+  // Bail if the requested file isn't an image you can't request .php files
+  // etc...
+  if (!getimagesize($src)) {
+    watchdog('imagecache', '403: File is not an image %image ', array('%image' => $src), WATCHDOG_ERROR);
+    header('HTTP/1.0 403 Forbidden');
+    exit;
+  }
+
+  $lockfile = file_directory_temp() .'/'. $preset['presetname'] . basename($src);
+  if (file_exists($lockfile)) {
+    watchdog('imagecache', 'ImageCache already generating: %dst, Lock file: %tmp.', array('%dst' => $dst, '%tmp' => $lockfile), WATCHDOG_NOTICE);
+    // 307 Temporary Redirect, to myself. Lets hope the image is done next time around.
+    header('Location: '. request_uri(), TRUE, 307);
+    exit;
+  }
+  touch($lockfile);
+  // register the shtdown function to clean up lock files. by the time shutdown
+  // functions are being called the cwd has changed from document root, to
+  // server root so absolute paths must be used for files in shutdown functions.
+  register_shutdown_function('file_delete', realpath($lockfile));
+  
+  $data = _epsacrop_get_crop_action($preset);
+  $_preset = $data['width'] .'x'. $data['height'];
+  $fid = _epsacrop_get_fid_from_path($src);
+  $coords = _epsacrop_get_coords_from_fid($fid);
+  if (!empty($coords[$_preset])) {
+    $saved_actions = $preset['actions'];
+    $epsacrop_crop = array(
+      'actionid' => -1,
+      'presetid' => -1,
+      'weight' => -99,
+      'module' => 'imagecache',
+      'action' => 'imagecache_crop',
+      'data' => array(
+        'width' => $coords[$_preset]['w'],
+        'height' => $coords[$_preset]['h'],
+        'xoffset' => $coords[$_preset]['x'],
+        'yoffset' => $coords[$_preset]['y']
+      ),
+    );
+    $epsacrop_resize = array(
+      'actionid' => -1,
+      'presetid' => -1,
+      'weight' => -98,
+      'module' => 'imagecache',
+      'action' => 'imagecache_resize',
+      'data' => array(
+        'width' => $data['width'],
+        'height' => $data['height']
+      ),
+    );
+    // Remove crop action on actual actions
+    foreach($saved_actions as $key => $action) {
+      if(preg_match('/_crop$/', $action['action'])) {
+        unset($saved_actions[$key]);
       }
     }
+    $preset['actions'] = array_merge(array($epsacrop_crop, $epsacrop_resize), $saved_actions);
   }
-  return '<img src="'. $imagecache_url .'" alt="'. check_plain($alt) .'" title="'. check_plain($title) .'" '. $attributes .' />';
+  
+  
+  // check if deriv exists... (file was created between apaches request handler and reaching this code)
+  // otherwise try to create the derivative.
+  if (file_exists($dst) || imagecache_build_derivative($preset['actions'], $src, $dst)) {
+    imagecache_transfer($dst);
+  }
+  // Generate an error if image could not generate.
+  watchdog('imagecache', 'Failed generating an image from %image using imagecache preset %preset.', array('%image' => $path, '%preset' => $preset['presetname']), WATCHDOG_ERROR);
+  header("HTTP/1.0 500 Internal Server Error");
+  exit;
 }

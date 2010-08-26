@@ -321,7 +321,7 @@ function theme_epsacrop_widget_item($element) {
       $filepath = _epsacrop_thumb_filepath($filepath);
       $element['epsacrop'] = array(
         '#type' => 'markup',
-        '#value' => '[<a rel="nozoom" href="javascript:EPSACrop.dialog(\''. $element['fid']['#value'] .'\', \''. $base_root . base_path() . $filepath .'\', ['. $info[0] .', '. $info[1] .']);">'. t("Manage image crops") .'</a>]'
+        '#value' => '[<a rel="nozoom" href="javascript:EPSACrop.dialog(\''. $element['fid']['#value'] .'\', \''. $base_root . base_path() . addslashes($filepath) .'\', ['. $info[0] .', '. $info[1] .']);">'. t("Manage image crops") .'</a>]'
       );
     }
   }

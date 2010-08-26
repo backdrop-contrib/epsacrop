@@ -82,11 +82,10 @@ function epsacrop_dialog() {
   $out .='</div>'."\n";
   $out .='<div class="epsacrop-presets-menu">'."\n";
   $out .='<ul class="epsacrop-presers-menu-ul">'."\n";
-  $query = db_query("SELECT p.presetname, a.data FROM {imagecache_action} a RIGHT JOIN {imagecache_preset} p ON p.presetid = a.presetid WHERE a.action LIKE '%crop';");
   $i = 0;
-  while ($res = db_fetch_array($query)) {
-    $data = unserialize($res['data']);
-    $out .='<li class="epsacrop-presers-menu-li"><a href="javascript:EPSACrop.crop(\''. $data['width'] .'x'. $data['height'] .'\');" rel="'. $data['width'] .'x'. $data['height'] .'"'. ($i == 0 ? ' class="selected"' : '') .'>'. $res['presetname'] .'</a></li>';
+  $crop_actions = _epsacrop_get_crop_actions();
+  foreach ($crop_actions as $action) {
+    $out .='<li class="epsacrop-presers-menu-li"><a href="javascript:EPSACrop.crop(\''. $action['width'] .'x'. $action['height'] .'\');" rel="'. $action['width'] .'x'. $action['height'] .'"'. ($i == 0 ? ' class="selected"' : '') .'>'. $action['presetname'] .'</a></li>';
     $i++; 
   }
   $out .='</ul>'."\n";
@@ -456,4 +455,22 @@ if (!$preset = imagecache_preset_by_name($presetname)) {
   watchdog('imagecache', 'Failed generating an image from %image using imagecache preset %preset.', array('%image' => $path, '%preset' => $preset['presetname']), WATCHDOG_ERROR);
   header("HTTP/1.0 500 Internal Server Error");
   exit;
+}
+
+/**
+ *Helper function for returning only imagecache preset actions with croping.
+ */
+function _epsacrop_get_crop_actions() {
+  $actions = array();
+
+  $presets = imagecache_presets();
+  foreach ($presets as $preset) {
+    foreach($preset['actions'] as $action) {
+      if (strpos($action['action'], 'crop') !== FALSE) {
+        $actions[] = array('presetname' => $preset['presetname'], 'width' => $action['data']['width'], 'height' => $action['data']['height']);
+      }
+    }
+  }
+
+  return $actions;
 }

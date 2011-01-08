@@ -3,6 +3,7 @@ $Id$
 EPSA Crop 6.x-1.0, 2011-01-08
 -----------------------------
 Fixed #1009608 by adr_p: Two presets selected simultaneously
+Fixed #904932 by adr_p, jjwhitney: Restrict available presets per field
 
 
 EPSA Crop 6.x-1.0, 2010-08-09

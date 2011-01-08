@@ -4,7 +4,7 @@ var EPSACrop = {
  delta: null,
  presets: {},
  init: false,
- dialog: function(delta, img, trueSize) {
+ dialog: function(type_name, field_name, delta, img, trueSize) {
     $('body').find('#EPSACropDialog').remove().end().append('<div title="Cropping Image" id="EPSACropDialog"><img src="'+Drupal.settings.epsacrop.base+Drupal.settings.epsacrop.path+'/img/loading.gif" /></div>');
     $('#EPSACropDialog').dialog({
        bgiframe: true,
@@ -31,7 +31,7 @@ var EPSACrop = {
        close: function() {
           $('#EPSACropDialog').remove();
        }
-    }).load(Drupal.settings.epsacrop.base+'?q=crop/dialog', function(){
+    }).load(Drupal.settings.epsacrop.base+'?q=crop/dialog/' + type_name + '/' + field_name, function(){
        try{
 	       var preset = $('.epsacrop-presets-menu a[class=selected]').attr('id'); 
 	       var coords = $('.epsacrop-presets-menu a[class=selected]').attr('rel').split('x');
@@ -48,13 +48,16 @@ var EPSACrop = {
          setTimeout(function(){
            EPSACrop.api = $.Jcrop('#epsacrop-target', {
               aspectRatio: (coords[0] / coords[1]),
-              setSelect: (typeof c == 'object') ? [c.x, c.y, c.x2, c.y2] : [0, 0, coords[0], coords[1]],
+              //setSelect: (typeof c == 'object') ? [c.x, c.y, c.x2, c.y2] : [0, 0, coords[0], coords[1]],
               trueSize: trueSize,
               onSelect: EPSACrop.update
            }); // $.Jcrop
+           // animateTo, to avoid one bug from Jcrop I guess,
+           // He doesn't calculate the scale with setSelect at the begining, so
+           // I add animateTo after initate the API.
+           EPSACrop.api.animateTo(((typeof c == 'object') ? [c.x, c.y, c.x2, c.y2] : [0, 0, coords[0], coords[1]]));
           }, 1000); // Sleep < d'une second
        }catch(err) {
-         console.log(err);
     	   alert(Drupal.t("Error on load : @error", {'@error': err.message}));
        }
     }); // fin load

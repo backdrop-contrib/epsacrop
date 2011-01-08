@@ -4,6 +4,7 @@
  * @file
  * The main file of module
  */
+ //JCrop Path
 $path = (defined('MAINTENANCE_MODE') && MAINTENANCE_MODE == 'install') ? dirname(__FILE__) : drupal_get_path('module', 'epsacrop');
 $path.='/Jcrop';
 if(module_exists('libraries')) {

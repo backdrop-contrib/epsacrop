@@ -1,5 +1,10 @@
 $Id$
 
+EPSA Crop 6.x-1.0, 2011-01-08
+-----------------------------
+Fixed #1009608 by adr_p: Two presets selected simultaneously
+
+
 EPSA Crop 6.x-1.0, 2010-08-09
 -----------------------------
 Fixed by mrfelton, dboulet: Compatibility with jQuery 1.3

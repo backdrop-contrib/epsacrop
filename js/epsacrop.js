@@ -33,8 +33,8 @@ var EPSACrop = {
        }
     }).load(Drupal.settings.epsacrop.base+'?q=crop/dialog', function(){
        try{
-	       var preset = $('.epsacrop-presets-menu a[class=selected]').attr('rel'); 
-	       var coords = preset.split('x');
+	       var preset = $('.epsacrop-presets-menu a[class=selected]').attr('id'); 
+	       var coords = $('.epsacrop-presets-menu a[class=selected]').attr('rel').split('x');
 	       EPSACrop.preset = preset;
 	       EPSACrop.delta = delta;
 	       if($('#edit-epsacropcoords').val().length > 0 && EPSACrop.init == false) {
@@ -60,9 +60,9 @@ var EPSACrop = {
     }); // fin load
  }, // dialog
  crop: function( preset ) {
-    $('.epsacrop-presets-menu a').each(function(i){ $(this).removeClass('selected') });
-    $('.epsacrop-presets-menu a[rel='+preset+']').addClass('selected');
-    var coords = preset.split('x');
+    $('.epsacrop-presets-menu a').removeClass('selected');
+    $('.epsacrop-presets-menu a#'+preset).addClass('selected');
+	  var coords = $('.epsacrop-presets-menu a[class=selected]').attr('rel').split('x');
     EPSACrop.preset = preset;
     if(typeof EPSACrop.presets[EPSACrop.delta] == 'object' && typeof EPSACrop.presets[EPSACrop.delta][EPSACrop.preset] == 'object' ) {
        var c = EPSACrop.presets[EPSACrop.delta][preset];

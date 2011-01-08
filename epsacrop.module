@@ -85,7 +85,8 @@ function epsacrop_dialog() {
   $i = 0;
   $crop_actions = _epsacrop_get_crop_actions();
   foreach ($crop_actions as $action) {
-    $out .='<li class="epsacrop-presers-menu-li"><a href="javascript:EPSACrop.crop(\''. $action['width'] .'x'. $action['height'] .'\');" rel="'. $action['width'] .'x'. $action['height'] .'"'. ($i == 0 ? ' class="selected"' : '') .'>'. $action['presetname'] .'</a></li>';
+    $id = 'epsacrop-'. $action['presetname'];
+    $out .='<li class="epsacrop-presers-menu-li"><a id="'. $id .'" href="javascript:EPSACrop.crop(\''. $id .'\');" rel="'. $action['width'] .'x'. $action['height'] .'"'. ($i == 0 ? ' class="selected"' : '') .'>'. $action['presetname'] .'</a></li>';
     $i++; 
   }
   $out .='</ul>'."\n";
@@ -407,7 +408,7 @@ if (!$preset = imagecache_preset_by_name($presetname)) {
   register_shutdown_function('file_delete', realpath($lockfile));
   
   $data = _epsacrop_get_crop_action($preset);
-  $_preset = $data['width'] .'x'. $data['height'];
+  $_preset = 'epsacrop-'. $presetname;
   $fid = _epsacrop_get_fid_from_path($src);
   $coords = _epsacrop_get_coords_from_fid($fid);
   if (!empty($coords[$_preset])) {

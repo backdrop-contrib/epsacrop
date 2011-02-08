@@ -521,10 +521,12 @@ function _epsacrop_get_field_actions($type_name, $field_name) {
   $actions = _epsacrop_get_crop_actions();
   $content_type = content_types($type_name);
   $presets = $content_type['fields'][$field_name]['widget']['epsacrop_presets'];
-  $presets = array_flip($presets);
-  foreach ($actions as $key => $action) {
-    if (!array_key_exists($action['presetname'], $presets)) {
-      unset($actions[$key]);
+  if(!empty($presets) && is_array($presets)) {
+    $presets = array_flip($presets);
+    foreach ($actions as $key => $action) {
+      if (!array_key_exists($action['presetname'], $presets)) {
+        unset($actions[$key]);
+      }
     }
   }
   return $actions;

@@ -536,7 +536,7 @@ function _epsacrop_get_field_actions($type_name, $field_name) {
 function epsacrop_widget_settings_alter(&$settings, $op, $widget) {
   $widget_type = isset($widget['widget_type']) ? $widget['widget_type'] : $widget['type'];
   // Alter only imagefied_widget
-  if ($widget_type != 'imagefield_widget') {
+  if (!stristr($widget_type, 'imagefield_widget')) {
     return;
   }
 

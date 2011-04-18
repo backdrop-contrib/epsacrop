@@ -5,7 +5,22 @@ var EPSACrop = {
  presets: {},
  init: false,
  dialog: function(type_name, field_name, delta, img, trueSize) {
-    $('body').find('#EPSACropDialog').remove().end().append('<div title="Cropping Image" id="EPSACropDialog"><img src="'+Drupal.settings.epsacrop.base+Drupal.settings.epsacrop.path+'/img/loading.gif" /></div>');
+    $('body').find('#EPSACropDialog').remove().end().append('<div title="'+ Drupal.t("Cropping Image") +'" id="EPSACropDialog"><img src="'+ Drupal.settings.epsacrop.base + Drupal.settings.epsacrop.path +'/img/loading.gif" /></div>');
+
+    // Translatables buttons
+    var buttons = {}
+    var saveLabel = Drupal.t("Save");
+    var cancelLabel = Drupal.t("Cancel");
+    buttons[saveLabel] = function(){
+      $('#edit-epsacropcoords').val(JSON.stringify(EPSACrop.presets));
+      $(this).dialog('close');
+      $('#EPSACropDialog').remove();
+    };
+    buttons[cancelLabel] = function () {
+      $(this).dialog('close');
+      $('#EPSACropDialog').remove();
+    }
+    
     $('#EPSACropDialog').dialog({
        bgiframe: true,
        height: 600,
@@ -17,21 +32,11 @@ var EPSACrop = {
           backgroundColor: '#000',
           opacity: 0.5
        },
-       buttons: {
-          Save: function() {
-            $('#edit-epsacropcoords').val(JSON.stringify(EPSACrop.presets));
-            $(this).dialog('close');
-            $('#EPSACropDialog').remove();
-          },
-          Cancel: function() {
-             $(this).dialog('close');
-             $('#EPSACropDialog').remove();
-          }
-       },
+       buttons: buttons,
        close: function() {
           $('#EPSACropDialog').remove();
        }
-    }).load(Drupal.settings.epsacrop.base+'?q=crop/dialog/' + type_name + '/' + field_name, function(){
+    }).load(Drupal.settings.epsacrop.base +'?q=crop/dialog/' + type_name + '/' + field_name, function(){
        try{
 	       var preset = $('.epsacrop-presets-menu a[class=selected]').attr('id'); 
 	       var coords = $('.epsacrop-presets-menu a[class=selected]').attr('rel').split('x');

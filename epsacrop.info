@@ -1,6 +1,6 @@
 name = Epsa Crop
 description = Allow an user to choose coordinates for different presets on an image.
-version = 6.x-0.1-beta2
+version = 6.x-1.2
 core = 6.x
 dependencies[] = jquery_ui
 dependencies[] = imagefield

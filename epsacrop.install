@@ -4,30 +4,37 @@
  * install file for epsacrop.module
 */
 
+
+/**
+ * Implementation of hook_schema
+ * 
+ * @access public
+ * @return array
+ */
 function epsacrop_schema() {
   $schema['epsacrop_files'] = array(
-    'description' => t('TODO: please describe this table!'),
+    'description' => 'TODO: please describe this table!',
     'fields' => array(
       'fid' => array(
-        'description' => t('TODO: please describe this field!'),
+        'description' => 'TODO: please describe this field!',
         'type' => 'int',
         'unsigned' => TRUE,
         'not null' => TRUE,
       ),
       'coords' => array(
-        'description' => t('TODO: please describe this field!'),
+        'description' => 'TODO: please describe this field!',
         'type' => 'text',
         'size' => 'big',
         'not null' => TRUE,
       ),
       'nid' => array(
-        'description' => t('TODO: please describe this field!'),
+        'description' => 'TODO: please describe this field!',
         'type' => 'int',
         'unsigned' => TRUE,
         'not null' => TRUE,
       ),
       'vid' => array(
-        'description' => t('TODO: please describe this field!'),
+        'description' => 'TODO: please describe this field!',
         'type' => 'int',
         'unsigned' => TRUE,
         'not null' => TRUE,
@@ -38,13 +45,21 @@ function epsacrop_schema() {
   return $schema;
 }
 
+
+/**
+ * Implementation of hook_requirements.
+ * 
+ * @access public
+ * @param string $phase
+ * @return array
+ */
 function epsacrop_requirements($phase) {
   $requirements = array();
   $t = get_t();
   if ($phase == 'install') {
     // The epsacrop_jcrop_get_version() function is in the .module file, which isn't
     // loaded yet.
-    include_once dirname(__FILE__) .'/epsacrop.module';
+    include_once dirname(__FILE__) . '/epsacrop.module';
   }
   $requirements['epsacrop_jcrop']['title'] = $t('EPSA Crop : Jcrop');
   $requirements['epsacrop_json2']['title'] = $t('EPSA Crop : json2.js');
@@ -52,7 +67,7 @@ function epsacrop_requirements($phase) {
     $version = epsacrop_jcrop_get_version();
     // Everything looks good; display the current Jcrop version.
     if ($version) {
-      $requirements['epsacrop_jcrop']['value'] = 'Jcrop version : '. $version;
+      $requirements['epsacrop_jcrop']['value'] = 'Jcrop version : ' . $version;
       $requirements['epsacrop_jcrop']['severity'] = REQUIREMENT_OK;
     }
     
@@ -77,11 +92,26 @@ function epsacrop_requirements($phase) {
   return $requirements;
 }
 
+
+/**
+ * Implementation of hook_install.
+ * 
+ * @access public
+ * @return void
+ */
 function epsacrop_install() {
-  drupal_install_schema('epsacrop');
-  db_query("UPDATE {system} SET weight = 10 WHERE name = '%s'", 'epsacrop');
+  db_update('system')
+    ->fields(array('weight' => 10))
+    ->condition('name', 'epsacrop')
+    ->execute();
 }
 
+
+/**
+ * Implementation of hook_uninstall.
+ * 
+ * @access public
+ * @return void
+ */
 function epsacrop_uninstall() {
-  drupal_uninstall_schema('epsacrop');
 }

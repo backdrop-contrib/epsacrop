@@ -6,15 +6,22 @@
  
  //JCrop & json2 Path
 if (module_exists('libraries') &&
-  file_exists(libraries_get_path('Jcrop') .'/js/jquery.Jcrop.min.js') && 
-  file_exists(libraries_get_path('json2') .'/json2.js')) {
+  file_exists(libraries_get_path('Jcrop') . '/js/jquery.Jcrop.min.js') && 
+  file_exists(libraries_get_path('json2') . '/json2.js')) {
   define('EPSACROP_JCROP_PATH', libraries_get_path('Jcrop'));
   define('EPSACROP_JSON2_PATH', libraries_get_path('json2'));
 }
 else {
-  $path_module = drupal_get_path('module', 'epsacrop');
-  define('EPSACROP_JCROP_PATH', $path_module . '/Jcrop');
-  define('EPSACROP_JSON2_PATH', $path_module . '/json2');
+  $base = 'sites/all/libraries';
+  if(file_exists($base . '/Jcrop/js/jquery.Jcrop.min.js') && file_exists($base . '/json2/json2.js')) {
+    define('EPSACROP_JCROP_PATH', $base . '/Jcrop');
+    define('EPSACROP_JSON2_PATH', $base . '/json2');
+  }
+  else{
+    $path_module = drupal_get_path('module', 'epsacrop');
+    define('EPSACROP_JCROP_PATH', $path_module . '/Jcrop');
+    define('EPSACROP_JSON2_PATH', $path_module . '/json2');
+  }
 }
 
 /**
@@ -22,6 +29,7 @@ else {
  * Implementation of hook_init
  */
 function epsacrop_init() {
+  /*
   if ((arg(0) == 'node' || arg(0) == "user") && (arg(1) == 'add' || arg(2) == 'edit' || arg(3) == "edit")) {
     $path_module = drupal_get_path('module', 'epsacrop');
     drupal_add_js(array('epsacrop' => array('base' => base_path(), 'path' => $path_module)), 'setting');
@@ -35,6 +43,7 @@ function epsacrop_init() {
     drupal_add_css(EPSACROP_JCROP_PATH .'/css/jquery.Jcrop.css');
     drupal_add_css($path_module .'/css/epsacrop.css');
   }
+  */
 }
 
 /**
@@ -49,8 +58,9 @@ function epsacrop_menu() {
     'access callback' => TRUE,
     'type' => MENU_CALLBACK
   );
-  $items['admin/settings/epsacrop'] = array(
+  $items['admin/config/media/epsacrop'] = array(
     'title' => 'EPSA Crop',
+    'description' => 'Configure the thumbnail size for cropping area.',
     'page callback' => 'drupal_get_form',
     'page arguments' => array('epsacrop_settings'),
     'access arguments' => array('administer site configuration'),
@@ -68,16 +78,6 @@ function epsacrop_settings(&$form_state) {
     '#description' => t("Size for admin thumbnail")
   );
   return system_settings_form($form);
-}
-
-/**
- * Implementation of hook_menu_alter
- */
-function epsacrop_menu_alter(&$items) {
-  $items[file_directory_path() .'/imagecache']['page callback'] = 'epsacrop_crop';
-  $items[file_directory_path() .'/imagecache']['module'] = 'epsacrop';
-  $items['system/files/imagecache']['page callback'] = 'epsacrop_crop_private';
-  $items['system/files/imagecache']['module'] = 'epsacrop';
 }
 
 /**
@@ -161,7 +161,7 @@ function epsacrop_form_alter(&$form, $form_state, $form_id) {
  * Return version of Jcrop plugin and make sure that exists
  */
 function epsacrop_jcrop_get_version() {
-  $vresion = 0;
+  $version = 0;
   if (file_exists(EPSACROP_JCROP_PATH .'/js/jquery.Jcrop.js')) {
     $lines = file(EPSACROP_JCROP_PATH .'/js/jquery.Jcrop.js');
     array_shift($lines); // First line is simple comment

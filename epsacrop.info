@@ -1,7 +1,6 @@
 name = Epsa Crop
 description = Allow an user to choose coordinates for different presets on an image.
-version = 6.x-1.2
-core = 6.x
-dependencies[] = jquery_ui
-dependencies[] = imagefield
-dependencies[] = imagecache
+version = 7.x-1.0
+core = 7.x
+package = Media
+configure = admin/config/media/epsacrop

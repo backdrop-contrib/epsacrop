@@ -5,8 +5,8 @@
    delta: null,
    presets: {},
    init: false,
-   dialog: function(type_name, field_name, delta, img, trueSize) {
-      $('body').find('#EPSACropDialog').remove().end().append('<div title="'+ Drupal.t("Cropping Image") +'" id="EPSACropDialog"><img src="'+ Drupal.settings.epsacrop.base + Drupal.settings.epsacrop.path +'/img/loading.gif" /></div>');
+   dialog: function(type_name, field_name, bundle, delta, img, trueSize) {
+      $('body').find('#EPSACropDialog').remove().end().append('<div title="'+ Drupal.t("Cropping Image") +'" id="EPSACropDialog"></div>');
   
       // Translatables buttons
       var buttons = {}
@@ -37,7 +37,7 @@
          close: function() {
             $('#EPSACropDialog').remove();
          }
-      }).load(Drupal.settings.epsacrop.base +'?q=crop/dialog/' + type_name + '/' + field_name, function(){
+      }).load(Drupal.settings.basePath +'?q=crop/dialog/' + type_name + '/' + field_name +'/' + bundle, function(){
          try{
   	       var preset = $('.epsacrop-presets-menu a[class=selected]').attr('id'); 
   	       var coords = $('.epsacrop-presets-menu a[class=selected]').attr('rel').split('x');

@@ -3,4 +3,3 @@ description = Allow an user to choose coordinates for different presets on an im
 version = 7.x-1.0
 core = 7.x
 package = Media
-configure = admin/config/media/epsacrop

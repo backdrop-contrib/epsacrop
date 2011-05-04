@@ -41,30 +41,38 @@
         try{
           var preset = $('.epsacrop-presets-menu a[class=selected]').attr('id'); 
           var coords = $('.epsacrop-presets-menu a[class=selected]').attr('rel').split('x');
-
+          var w = parseInt(coords[0]);
+          var h = parseInt(coords[1]);
+          
           Drupal.EPSACrop.preset = preset;
           Drupal.EPSACrop.delta = delta;
           
-          if (Drupal.EPSACrop.init === false) {
-            presets = Drupal.EPSACrop.presets = eval('(' + $('#epsacrop-coords-data').val() + ')');
+          presets = Drupal.EPSACrop.presets;
+
+          if (Drupal.EPSACrop.init === false && $('#epsacrop-coords-data').val().length > 0) {
+            presets = JSON.parse( $('#epsacrop-coords-data').val()); //eval('(' + $('#epsacrop-coords-data').val() + ')');
             Drupal.EPSACrop.init = true;
           }
-                    
+                              
           if ((typeof presets[delta] == 'object') && (typeof presets[delta][preset] == 'object') ) {
             var c = presets[delta][preset];
           }
-                    
+                              
           $('#epsacrop-target').attr({'src': img});
+          console.log(trueSize);
+          console.log(c);
+          console.log(w);
+          console.log(h);
           setTimeout(function(){
             Drupal.EPSACrop.api = $.Jcrop('#epsacrop-target', {
-              aspectRatio: (coords[0] / coords[1]),
-              // trueSize: trueSize,
+              aspectRatio: (w / h),
+              trueSize: trueSize,
               onSelect: Drupal.EPSACrop.update
             }); // $.Jcrop
             // animateTo, to avoid one bug from Jcrop I guess,
             // He doesn't calculate the scale with setSelect at the begining, so
             // I add animateTo after initate the API.
-            Drupal.EPSACrop.api.animateTo(((typeof c == 'object') ? [c.x, c.y, c.x2, c.y2] : [0, 0, coords[0], coords[1]]));
+            Drupal.EPSACrop.api.animateTo(((typeof c == 'object') ? [c.x, c.y, c.x2, c.y2] : [0, 0, w, h]));
           }, 1000); // Sleep < one second
         }catch(err) {
           alert(Drupal.t("Error on load : @error", {'@error': err.message}));
@@ -92,7 +100,7 @@
       var preset = Drupal.EPSACrop.preset;
       var delta = Drupal.EPSACrop.delta;
       var presets = Drupal.EPSACrop.presets;
-      
+
       if(typeof presets[delta] != 'object') {
         presets[delta] = {};
       }

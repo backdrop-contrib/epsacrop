@@ -26,19 +26,7 @@ function epsacrop_schema() {
         'type' => 'text',
         'size' => 'big',
         'not null' => TRUE,
-      ),
-      'nid' => array(
-        'description' => 'TODO: please describe this field!',
-        'type' => 'int',
-        'unsigned' => TRUE,
-        'not null' => TRUE,
-      ),
-      'vid' => array(
-        'description' => 'TODO: please describe this field!',
-        'type' => 'int',
-        'unsigned' => TRUE,
-        'not null' => TRUE,
-      ),
+      )
     ),
     'primary key' => array('fid'),
   );

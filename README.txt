@@ -1,19 +1,17 @@
 
 -- SUMMARY --
 
-EPSA Crop is a module that allows a user to choose coordinates for different presets on an image. If a user defines coordinates EPSACrop will alter the Imagecache process and will set new coordinates.
+EPSA Crop is a module that allows a user to choose coordinates for different styles on an image. If a user defines coordinates EPSACrop will create a image with the points.
 
-Every preset with the crop action is handled by EPSACrop. If the user don't change the coordinates, the normal imagecache process is applied.
+If the user don't change the coordinates, the normal crop process is applied.
 
-You can try the module on this demo web site : http://www.aswissidea.com
+You can try the module on this demo web site : http://www.aswissidea.com (Drupal 6.x only for now)
 
 
 -- REQUIRENENTS --
 
-EPSACrop depends on these modules
- - Imagefield
- - Imagecache
- - jQuery UI (dialog)
+EPSACrop require this module enabled
+ - Image
 
 And need to install these external libraries
 JCrop (http://deepliquid.com/content/Jcrop.html)
@@ -34,7 +32,11 @@ json2 (https://github.com/douglascrockford/JSON-js)
 
 -- CONFIGURATION --
 
-You can go at admin/settings/epsacrop to set thumbnail size (needed for large size images)
+After actived the module, check the permissions and these parts.
+
+You can go Configuration -> Media -> Image styles and change/add a style with the Crop Dialog Effect.
+
+For each Content Type, you should tell which Styles are show, for this you've to go in Strcture -> Content Type -> {Type} -> Manage Fields and for each field with the Widget Image, if you edit you can see a new settings.
 
 -- TROUBLESHOOTING --
 

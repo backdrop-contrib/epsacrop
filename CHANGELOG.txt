@@ -1,3 +1,7 @@
+EPSA Crop 7.x-2.0, 2011-05-05
+-----------------------------
+Initial release of EPSACrop module for Drupal 7.
+
 EPSA Crop 6.x-1.2, 2011-04-18
 -----------------------------
 by yvmarques: Delete jQuery UI theme from EPSACrop folder.

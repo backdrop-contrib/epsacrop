@@ -45,14 +45,14 @@ function epsacrop_requirements($phase) {
   $requirements = array();
   $t = get_t();
   if ($phase == 'install') {
-    // The epsacrop_jcrop_get_version() function is in the .module file, which isn't
+    // The _epsacrop_jcrop_get_version() function is in the .module file, which isn't
     // loaded yet.
     include_once dirname(__FILE__) . '/epsacrop.module';
   }
   $requirements['epsacrop_jcrop']['title'] = $t('EPSA Crop : Jcrop');
   $requirements['epsacrop_json2']['title'] = $t('EPSA Crop : json2.js');
-  if ($version = epsacrop_jcrop_get_version() || _epsacrop_is_json2_exists()) {
-    $version = epsacrop_jcrop_get_version();
+  if ($version = _epsacrop_jcrop_get_version() || _epsacrop_is_json2_exists()) {
+    $version = _epsacrop_jcrop_get_version();
     // Everything looks good; display the current Jcrop version.
     if ($version) {
       $requirements['epsacrop_jcrop']['value'] = 'Jcrop version : ' . $version;
@@ -66,7 +66,7 @@ function epsacrop_requirements($phase) {
   }
   else {
     // Required libraies wasn't found. Abort installation.
-    if (!epsacrop_jcrop_get_version()) {
+    if (!_epsacrop_jcrop_get_version()) {
       $requirements['epsacrop_jcrop']['value'] = $t('Not found');
       $requirements['epsacrop_jcrop']['description'] = $t('The <a href="@jcrop">Jcrop</a> plugin is missing. <a href="@download">Download</a> and extract it in your <em>sites/all/libraries</em> directory.', array('@jcrop' => 'http://deepliquid.com/content/Jcrop.html', '@download' => 'http://code.google.com/p/jcrop/downloads/detail?name=jquery.Jcrop-0.9.8.zip&can=2'));
       $requirements['epsacrop_jcrop']['severity'] = REQUIREMENT_ERROR;

@@ -2,6 +2,9 @@
 /**
  * @file
  * The main file of module
+ *
+ * @TODO Pass dialog popo throw theme functions
+ * @TODO Add the in place edition
  */
  
  //JCrop & json2 Path
@@ -13,7 +16,7 @@ if (module_exists('libraries') &&
 }
 else {
   $base = 'sites/all/libraries';
-  if(file_exists($base . '/Jcrop/js/jquery.Jcrop.min.js') && file_exists($base . '/json2/json2.js')) {
+  if (file_exists($base . '/Jcrop/js/jquery.Jcrop.min.js') && file_exists($base . '/json2/json2.js')) {
     define('EPSACROP_JCROP_PATH', $base . '/Jcrop');
     define('EPSACROP_JSON2_PATH', $base . '/json2');
   }
@@ -97,29 +100,17 @@ function epsacrop_menu() {
     'title' => 'Dialog Crop',
     'page callback' => 'epsacrop_dialog',
     'page arguments' => array(2, 3, 4, 5),
-    'access callback' => 'epsacrop_access',
+    'access callback' => '_epsacrop_access',
     'type' => MENU_CALLBACK,
   );
   $items['crop/ajax/%/%'] = array(
     'title' => 'Crop Dialog Ajax',
     'page callback' => 'epsacrop_ajax',
     'page arguments' => array(2, 3),
-    'access callback' => 'epsacrop_access',
+    'access callback' => '_epsacrop_access',
     'type' => MENU_CALLBACK,
   );
   return $items;
-}
-
-
-/**
- * Callback for hook_menu.
- * 
- * @access public
- * @param mixed $access
- * @return void
- */
-function epsacrop_access() {
-  return user_access('epsacrop create crops') || user_access('epsacrop edit all crops');
 }
 
 
@@ -134,29 +125,29 @@ function epsacrop_access() {
  * @return void
  */
 function epsacrop_dialog($entity_name, $field_name, $bundle, $fid) {
-  $out ='<div class="epsacrop-global">'."\n";
-  $out .='<div class="epsacrop-image-crop">'."\n";
-  $out .='<img id="epsacrop-target" />'."\n";
-  $out .='</div>'."\n";
-  $out .='<div class="epsacrop-presets-menu">'."\n";
-  $out .='<ul class="epsacrop-presets-menu-ul">'."\n";
+  $out ='<div class="epsacrop-global">' . "\n";
+  $out .='<div class="epsacrop-image-crop">' . "\n";
+  $out .='<img id="epsacrop-target" />' . "\n";
+  $out .='</div>' . "\n";
+  $out .='<div class="epsacrop-presets-menu">' . "\n";
+  $out .='<ul class="epsacrop-presets-menu-ul">' . "\n";
   $i = 0;
   $styles = _epsacrop_load_styles_by_instance($entity_name, $field_name, $bundle);
   foreach ($styles['styles'] as $style_name) {
     $style = _epsacrop_load_style($style_name);
     $effect = _epsacrop_get_effect($style);
-    $id = 'epsacrop-'. $effect['ieid'] .'-'. $effect['isid'];
-    $out .='<li class="epsacrop-presets-menu-li"><a id="'. $id .'" href="javascript:Drupal.EPSACrop.crop(\''. $id .'\');" rel="'. $effect['data']['width'] .'x'. $effect['data']['height'] .'"'. ($i++ == 0 ? ' class="selected"' : '') .'>'. $style['name'] .'</a></li>';
+    $id = 'epsacrop-' . $effect['ieid'] . '-' . $effect['isid'];
+    $out .='<li class="epsacrop-presets-menu-li"><a data-bgcolor="' . $effect['data']['jcrop_settings']['bgcolor'] . '" data-bgopacity="' . $effect['data']['jcrop_settings']['bgopacity'] . '" data-aspect-ratio="' . $effect['data']['jcrop_settings']['aspect_ratio'] . '" id="' . $id . '" href="javascript:Drupal.EPSACrop.crop(\'' . $id . '\');" rel="' . $effect['data']['width'] . 'x' . $effect['data']['height'] . '"' . ($i++ == 0 ? ' class="selected"' : '') . '>' . $style['name'] . '</a></li>';
   }
-  $out .='</ul>'."\n";
-  $out .='</div>'."\n";
+  $out .='</ul>' . "\n";
+  $out .='</div>' . "\n";
   $data = _epsacrop_get_coords_from_fid($fid);
   if (!is_string($data)) {
     $data = drupal_json_encode($data);
   }
-  $out .='<div style="display:none;"><textarea id="epsacrop-coords-data">'. $data .'</textarea></div>'."\n";
-  $out .='<br style="clear:both;" />'."\n";
-  $out .='</div>'."\n";
+  $out .='<div style="display:none;"><textarea id="epsacrop-coords-data">' . $data . '</textarea></div>' . "\n";
+  $out .='<br style="clear:both;" />' . "\n";
+  $out .='</div>' . "\n";
 
   $GLOBALS['devel_shutdown'] = FALSE;
   echo $out;
@@ -184,7 +175,6 @@ function epsacrop_ajax($op, $fid) {
       }
     break;
     case 'put':
-      watchdog('debug', '<pre>'. print_r($_POST, 1) .'</pre>');
       if (isset($_POST) && (isset($_POST['coords']) && !empty($_POST['coords']))) {
         $coords = $_POST['coords'];
         $fid = $fid;
@@ -261,12 +251,12 @@ function epsacrop_image_effect_info() {
  * @param mixed $data
  * @return void
  */
-function epsacrop_crop_image_form($data){
+function epsacrop_crop_image_form($data) {
   $data += array(
-    'dialog_width' => '512',
-    'dialog_height' => '384',
-    'bgcolor' => 'black',
-    'bgopacity' => '0.6',
+    'jcrop_settings' => array(
+      'bgcolor' => 'black',
+      'bgopacity' => '0.6',
+    )
   );
   
   //@TODO Propose a alternative style (whitout Crop Dialog effect) instead of this
@@ -287,11 +277,11 @@ function epsacrop_crop_image_form($data){
     '#type' => 'textfield', 
     '#title' => t('Aspect Ratio'), 
     '#description' => t("Aspect ratio of w/h (e.g. 1 for square)"),
-    '#default_value' => isset($data['aspect_ratio']) ? $data['aspect_ratio'] : '', 
+    '#default_value' => isset($data['jcrop_settings']['aspect_ratio']) ? $data['jcrop_settings']['aspect_ratio'] : '', 
     // '#field_suffix' => ' ' . t('pixels'), 
     // '#required' => TRUE, 
     '#size' => 10, 
-    // '#element_validate' => array('image_effect_integer_validate'), 
+    '#element_validate' => array('_epsacrop_aspect_ratio_validate'), 
     // '#allow_negative' => FALSE,
   );
   
@@ -304,7 +294,7 @@ function epsacrop_crop_image_form($data){
     '#type' => 'textfield', 
     '#title' => t('Background color'), 
     '#description' => t("Set color of background container"),
-    '#default_value' => isset($data['bgcolor']) ? $data['bgcolor'] : '', 
+    '#default_value' => isset($data['jcrop_settings']['bgcolor']) ? $data['jcrop_settings']['bgcolor'] : '', 
     // '#field_suffix' => ' ' . t('pixels'), 
     '#required' => TRUE, 
     '#size' => 10, 
@@ -316,7 +306,7 @@ function epsacrop_crop_image_form($data){
     '#type' => 'textfield', 
     '#title' => t('Background opacity'), 
     '#description' => t("Opacity of outer image when cropping"),
-    '#default_value' => isset($data['bgopacity']) ? $data['bgopacity'] : '', 
+    '#default_value' => isset($data['jcrop_settings']['bgopacity']) ? $data['jcrop_settings']['bgopacity'] : '', 
     // '#field_suffix' => ' ' . t('pixels'), 
     '#required' => TRUE, 
     '#size' => 10, 
@@ -335,21 +325,20 @@ function epsacrop_crop_image_form($data){
  * @param array $settings
  * @return void
  */
-function epsacrop_crop_image(stdClass $image, $settings){
+function epsacrop_crop_image(stdClass $image, $settings) {
   $fid = _epsacrop_get_fid_from_uri($image->source);
   if (!empty($fid) && $fid > 0) {
     $coords = _epsacrop_get_coords_from_fid($fid);
-    watchdog('debug', 'coords<pre>'. print_r($coords, 1) .'</pre>');
     $coords = drupal_json_decode($coords);
     if (!empty($coords) && is_array($coords)) {
       $style_name = _epsacrop_get_style_name_from_url();
       if (!empty($style_name)) {
         $style = _epsacrop_load_style($style_name);
         $effect = _epsacrop_get_effect($style);
-        $preset = 'epsacrop-'. $effect['ieid'] .'-'. $effect['isid'];
+        $preset = 'epsacrop-' . $effect['ieid'] . '-' . $effect['isid'];
         $coord = $coords[$fid][$preset];
         if (!empty($coord)) {
-          if(image_crop($image, $coord['x'], $coord['y'], $coord['w'], $coord['h'])) {
+          if (image_crop($image, $coord['x'], $coord['y'], $coord['w'], $coord['h'])) {
             return image_resize($image, $settings['width'], $settings['height']);
           }
         }
@@ -358,14 +347,6 @@ function epsacrop_crop_image(stdClass $image, $settings){
   }
   return image_crop_effect($image, $settings);
 }
-
-/*
-function epsacrop_crop_image_summary(){
-  $args = func_get_args();
-  dsm($args);
-}
-*/
-
 
 /**
  * Implements hook_form_FORM_ID_alter().
@@ -439,7 +420,6 @@ function epsacrop_element_info_alter(&$type) {
   $type['managed_file']['#after_build'][] = '_epsacrop_process_form_element';
 }
 
-
 /**
  * Helper function that add a link in image widget field to open a dialog for the crops.
  * 
@@ -451,13 +431,13 @@ function _epsacrop_process_form_element($element, $form_state) {
     if (isset($element['#field_name'])) {
       _epsacrop_include_header_html();
       $styles = _epsacrop_load_styles_by_instance($element['#entity_type'], $element['#field_name'], $element['#bundle']);
-      if(!empty($styles) && (isset($element['#file']) && is_object($element['#file']))) {
+      if (!empty($styles) && (isset($element['#file']) && is_object($element['#file']))) {
         $file = $element['#file'];
         $url = image_style_url('epsacrop_thumb', $file->uri);
         $info = image_get_info($file->uri);
         $element['epsacrop'] = array(
           '#type' => 'markup',
-          '#markup' => "[<a href=\"javascript:Drupal.EPSACrop.dialog('". $element['#entity_type'] ."', '". $element['#field_name'] ."', '". $element['#bundle'] ."', '". $file->fid ."', '". $url ."', '[". $info['width'] .",". $info['height'] ."]');\">". t("manage image crops") ."</a>]"
+          '#markup' => "[<a href=\"javascript:Drupal.EPSACrop.dialog('" . $element['#entity_type'] . "', '" . $element['#field_name'] . "', '" . $element['#bundle'] . "', '" . $file->fid . "', '" . $url . "', [" . $info['width'] . "," . $info['height'] . "]);\">" . t("manage image crops") . "</a>]"
         );
       }
     }
@@ -465,6 +445,29 @@ function _epsacrop_process_form_element($element, $form_state) {
   return $element;
 }
 
+
+/**
+ * Validate a aspect ration information.
+ * 
+ * @access public
+ * @param array $element
+ * @param array &$form_state
+ * @return void
+ */
+function _epsacrop_aspect_ratio_validate($element, &$form_state) {
+  $value = $element['#value'];
+  if (!empty($value)) {
+    $parts = explode('/', $value);
+    if (count($parts) == 2) {
+      if ( !is_numeric($parts[0]) || !is_numeric($parts[1])) {
+        form_error($element, t('Both parts of !name must be an integer.', array('!name' => check_plain($element['#title']))));
+      }
+    }
+    elseif (!is_numeric($value)) {
+      form_error($element, t('!name must be an integer.', array('!name' => check_plain($element['#title']))));
+    }
+  }
+}
 
 /**
  * Helper function that get all styles with epsacrop effect.
@@ -519,7 +522,7 @@ function _epsacrop_get_effect($style) {
   }
   
   foreach ($style['effects'] as $eid => $effect) {
-    if($effect['module'] == 'epsacrop') {
+    if ($effect['module'] == 'epsacrop') {
       return $effect;
     }
   }
@@ -573,12 +576,12 @@ function _epsacrop_include_header_html() {
   $module_path = drupal_get_path('module', 'epsacrop');
   drupal_add_js(array('epsacrop' => array('path' => $module_path)), 'setting');
   drupal_add_library('system', 'ui.dialog');
-  drupal_add_js(EPSACROP_JCROP_PATH .'/js/jquery.Jcrop.min.js');
-  drupal_add_js(EPSACROP_JSON2_PATH .'/json2.js');
-  drupal_add_js($module_path .'/js/epsacrop.js');
+  drupal_add_js(EPSACROP_JCROP_PATH . '/js/jquery.Jcrop.js');
+  drupal_add_js(EPSACROP_JSON2_PATH . '/json2.js');
+  drupal_add_js($module_path . '/js/epsacrop.js');
   
-  drupal_add_css(EPSACROP_JCROP_PATH .'/css/jquery.Jcrop.css');
-  drupal_add_css($module_path .'/css/epsacrop.css');
+  drupal_add_css(EPSACROP_JCROP_PATH . '/css/jquery.Jcrop.css');
+  drupal_add_css($module_path . '/css/epsacrop.css');
 }
 
 
@@ -589,10 +592,10 @@ function _epsacrop_include_header_html() {
  * @access public
  * @return void
  */
-function epsacrop_jcrop_get_version() {
+function _epsacrop_jcrop_get_version() {
   $version = 0;
-  if (file_exists(EPSACROP_JCROP_PATH .'/js/jquery.Jcrop.js')) {
-    $lines = file(EPSACROP_JCROP_PATH .'/js/jquery.Jcrop.js');
+  if (file_exists(EPSACROP_JCROP_PATH . '/js/jquery.Jcrop.js')) {
+    $lines = file(EPSACROP_JCROP_PATH . '/js/jquery.Jcrop.js');
     array_shift($lines); // First line is simple comment
     if (preg_match('/v(.*)/', array_shift($lines), $matches)) {
       $version = $matches[1];
@@ -613,7 +616,7 @@ function epsacrop_jcrop_get_version() {
  * @return void
  */
 function _epsacrop_is_json2_exists() {
-  if (file_exists(EPSACROP_JSON2_PATH .'/json2.js')) {
+  if (file_exists(EPSACROP_JSON2_PATH . '/json2.js')) {
     return TRUE;
   }
   drupal_set_message(t('Could be find the json2.js file, check your install'), 'error');
@@ -766,4 +769,15 @@ function _epsacrop_get_uri_from_fid($fid) {
       ->fetchField();
   }
   return FALSE;
+}
+
+/**
+ * Callback for hook_menu.
+ * 
+ * @access public
+ * @param mixed $access
+ * @return void
+ */
+function _epsacrop_access() {
+  return user_access('epsacrop create crops') || user_access('epsacrop edit all crops');
 }

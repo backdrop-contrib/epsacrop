@@ -329,7 +329,9 @@ function epsacrop_crop_image(stdClass $image, $settings) {
   $fid = _epsacrop_get_fid_from_uri($image->source);
   if (!empty($fid) && $fid > 0) {
     $coords = _epsacrop_get_coords_from_fid($fid);
-    $coords = drupal_json_decode($coords);
+    if (is_string($coords)) {
+      $coords = drupal_json_decode($coords);
+    }
     if (!empty($coords) && is_array($coords)) {
       $style_name = _epsacrop_get_style_name_from_url();
       if (!empty($style_name)) {

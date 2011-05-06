@@ -198,7 +198,7 @@ function epsacrop_ajax($op, $fid) {
  * @return void
  */
 function epsacrop_file_delete($file) {
-  _esacrop_file_delete($file->fid);
+  _epsacrop_delete_file($file->fid);
 }
 
 

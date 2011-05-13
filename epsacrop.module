@@ -544,9 +544,11 @@ function _epsacrop_get_effect($style) {
 function _epsacrop_load_styles_by_instance($entity_type, $field_name, $bundle) {
   $instance = field_info_instance($entity_type, $field_name, $bundle);
   $styles = array();
-  $instance['settings']['epsacrop']['styles'] = array_filter($instance['settings']['epsacrop']['styles']);
-  if (isset($instance['settings']['epsacrop']['styles']) && !empty($instance['settings']['epsacrop']['styles'])) {
-    $styles = $instance['settings']['epsacrop'];
+  if (is_array($instance['settings']['epsacrop']['styles'])) {
+    $instance['settings']['epsacrop']['styles'] = array_filter($instance['settings']['epsacrop']['styles']);
+    if (isset($instance['settings']['epsacrop']['styles']) && !empty($instance['settings']['epsacrop']['styles'])) {
+      $styles = $instance['settings']['epsacrop'];
+    }
   }
   return $styles;
 }

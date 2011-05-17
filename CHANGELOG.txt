@@ -1,3 +1,9 @@
+EPSA Crop 7.x-2.1, 2011-05-17
+-----------------------------
+Fixed by yvmarques: Fatal error when trying to delete a file.
+Fixed by yvmarques: json_decode warning when coordinates doesn't exists.
+Fixed by yvmarques: Error when the field instance doesn't have styles.
+
 EPSA Crop 7.x-2.0, 2011-05-05
 -----------------------------
 Initial release of EPSACrop module for Drupal 7.

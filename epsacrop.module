@@ -429,7 +429,7 @@ function epsacrop_element_info_alter(&$type) {
  * @return void
  */
 function _epsacrop_process_form_element($element, $form_state) {
-  if (user_access('epsacrop create crops') || user_acces('epsacrop edit all crops')) {
+  if (user_access('epsacrop create crops') || user_access('epsacrop edit all crops')) {
     if (isset($element['#field_name'])) {
       _epsacrop_include_header_html();
       $styles = _epsacrop_load_styles_by_instance($element['#entity_type'], $element['#field_name'], $element['#bundle']);

@@ -234,7 +234,7 @@ function epsacrop_image_default_styles() {
 function epsacrop_image_effect_info() {
   $effects = array();
   $effects['epsacrop_crop'] = array(
-    'label' => t("Crop Dialog"),
+    'label' => t("EPSA Image Crop"),
     'help' => t(""),
     'effect callback' => 'epsacrop_crop_image',
     'form callback' => 'epsacrop_crop_image_form',

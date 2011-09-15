@@ -38,11 +38,11 @@ function epsacrop_permission() {
   return array(
     'epsacrop create crops' => array(
       'title' => t("Create crops"),
-      'description' => t("Show the link manage image crops in the field.")
+      'description' => t("Show the %label_link link in the field.", array('%label_link' => t("mangage image crops"))
     ),
     'epsacrop edit all crops' => array(
       'title' => t("Edit crops"),
-      'description' => t("Allow the user to edit coordonates for each style (show the link field)")
+      'description' => t("Allow the user to edit coordinates for each style (show the link field).")
     ),
     /*
     'epsacrop edit my crops' => array(
@@ -52,7 +52,7 @@ function epsacrop_permission() {
     */
     'epsacrop delete all crops' => array(
       'title' => t("Delete crops"),
-      'description' => t("Allow the user delete coordonates and let the default style working.")
+      'description' => t("Allow the user to delete coordinates and use the default style.")
     ),
     /*
     'epsacrop delete my crops' => array(
@@ -82,7 +82,7 @@ function epsacrop_permission() {
     */
     'epsacrop administer available crops' => array(
       'title' => t("Administer available crops"),
-      'description' => t("Allow user with right to select which styles are show in each field.")
+      'description' => t("Allow user to select which styles are shown in each field.")
     ),
   );
 }

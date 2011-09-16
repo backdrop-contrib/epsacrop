@@ -38,7 +38,7 @@ function epsacrop_permission() {
   return array(
     'epsacrop create crops' => array(
       'title' => t("Create crops"),
-      'description' => t("Show the %label_link link in the field.", array('%label_link' => t("mangage image crops"))
+      'description' => t("Show the %label_link link in the field.", array('%label_link' => t("mangage image crops")))
     ),
     'epsacrop edit all crops' => array(
       'title' => t("Edit crops"),

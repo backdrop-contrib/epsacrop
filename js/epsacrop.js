@@ -80,7 +80,8 @@
               trueSize: trueSize,
               onSelect: Drupal.EPSACrop.update,
               bgColor: bgcolor,
-              bgOpacity: bgopacity
+              bgOpacity: bgopacity,
+              keySupport: false // fix the jump scroll
             }); // $.Jcrop
             // animateTo, to avoid one bug from Jcrop I guess,
             // He doesn't calculate the scale with setSelect at the begining, so

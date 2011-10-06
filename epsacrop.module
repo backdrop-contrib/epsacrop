@@ -623,7 +623,7 @@ function _epsacrop_is_json2_exists() {
   if (file_exists(EPSACROP_JSON2_PATH . '/json2.js')) {
     return TRUE;
   }
-  drupal_set_message(t('Could be find the json2.js file, check your install'), 'error');
+  drupal_set_message(t('Could not find the json2.js file, check your install'), 'error');
   return FALSE;
 }
 

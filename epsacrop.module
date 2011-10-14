@@ -336,12 +336,16 @@ function epsacrop_crop_image(stdClass $image, $settings) {
       $style_name = _epsacrop_get_style_name_from_url();
       if (!empty($style_name)) {
         $style = _epsacrop_load_style($style_name);
-        $effect = _epsacrop_get_effect($style);
-        $preset = 'epsacrop-' . $effect['ieid'] . '-' . $effect['isid'];
-        $coord = $coords[$fid][$preset];
-        if (!empty($coord)) {
-          if (image_crop($image, $coord['x'], $coord['y'], $coord['w'], $coord['h'])) {
-            return image_resize($image, $settings['width'], $settings['height']);
+        if (!empty($style)) {
+          $effect = _epsacrop_get_effect($style);
+          if (!empty($effect)) {
+            $preset = 'epsacrop-' . $effect['ieid'] . '-' . $effect['isid'];
+            $coord = $coords[$fid][$preset];
+            if (!empty($coord)) {
+              if (image_crop($image, $coord['x'], $coord['y'], $coord['w'], $coord['h'])) {
+                return image_resize($image, $settings['width'], $settings['height']);
+              }
+            }
           }
         }
       }

@@ -10,10 +10,16 @@
       
       // Translatables buttons
       var buttons = {};
-      var saveLabel = Drupal.t("Save");
+      var saveLabel = Drupal.t("Apply crop");
       var cancelLabel = Drupal.t("Cancel");
+
       buttons[saveLabel] = function (){
         $.post(Drupal.settings.basePath +'?q=crop/ajax/put/' + delta, {'coords': JSON.stringify(Drupal.EPSACrop.presets)});
+        var field = field_name.replace('_', '-');
+        var welem = $('div[id*="' + field + '"]').eq(0);
+        if(welem.find('.warning').size() == 0) {
+          welem.prepend('<div class="tabledrag-changed-warning messages warning">' + Drupal.t("Changes made in image crops will not be saved until the form is submitted.") + '</div>');
+        }
         $(this).dialog('close');
         $('#EPSACropDialog').remove();
       };
@@ -23,20 +29,20 @@
       };
       
       $('#EPSACropDialog').dialog({
-        bgiframe: true,
-        height: 600,
-        width: 850,
-        modal: true,
-        draggable: false,
-        resizable: false,
-        overlay: {
-          backgroundColor: '#000',
-          opacity: 0.6
-        },
-        buttons: buttons,
-        close: function () {
-          $('#EPSACropDialog').remove();
-        }
+          bgiframe: true,
+          height: 600,
+          width: 850,
+          modal: true,
+          draggable: false,
+          resizable: false,
+          overlay: {
+            backgroundColor: '#000',
+            opacity: 0.6
+          },
+          buttons: buttons,
+          close: function () {
+            $('#EPSACropDialog').remove();
+          }
         }).load(Drupal.settings.basePath +'?q=crop/dialog/' + type_name + '/' + field_name +'/' + bundle +'/'+ delta, function (){
         try{
           var item = $('.epsacrop-presets-menu a[class=selected]');
@@ -53,9 +59,8 @@
           Drupal.EPSACrop.delta = delta;
           
           presets = Drupal.EPSACrop.presets;
-
           if (Drupal.EPSACrop.init === false && $('#epsacrop-coords-data').val().length > 0) {
-            presets = JSON.parse( $('#epsacrop-coords-data').val()); //eval('(' + $('#epsacrop-coords-data').val() + ')');
+            presets = JSON.parse( $('#epsacrop-coords-data').val());
             Drupal.EPSACrop.init = true;
           }
                               
@@ -63,7 +68,7 @@
             var c = presets[delta][preset];
           }
           
-          // Change the ratio in numeric
+          // Change the ratio into numeric
           if(aspectRatio.length > 0) {
             if(aspectRatio.split('/').length == 0) {
               ratios = aspectRatio.split('/');

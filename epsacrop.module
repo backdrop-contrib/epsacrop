@@ -110,6 +110,13 @@ function epsacrop_menu() {
     'access callback' => '_epsacrop_access',
     'type' => MENU_CALLBACK,
   );
+  $items['crop/ajaxinfo/%'] = array(
+    'title' => 'Crop File Info Ajax',
+    'page callback' => 'epsacrop_ajaxinfo',
+    'page arguments' => array(2),
+    'access callback' => '_epsacrop_access',
+    'type' => MENU_CALLBACK,
+  );
   return $items;
 }
 
@@ -125,14 +132,29 @@ function epsacrop_menu() {
  * @return void
  */
 function epsacrop_dialog($entity_name, $field_name, $bundle, $fid) {
-  $out ='<div class="epsacrop-global">' . "\n";
+  $out = '';
+  //@TODO: If a method is added to determine if the image is used elsewhere (or number of instances), add that condition for the message
+  //related issue: http://drupal.org/node/1352722
+  if(module_exists('media')) {
+    $out .= '<p>For convenience, cropping applies to <strong>all</strong> current and future content which uses this image. (If the image is from the library, changing the cropping will affect all existing content which uses the image.)</p>';
+  }
+  $out .='<div class="epsacrop-global">' . "\n";
   $out .='<div class="epsacrop-image-crop">' . "\n";
   $out .='<img id="epsacrop-target" />' . "\n";
   $out .='</div>' . "\n";
   $out .='<div class="epsacrop-presets-menu">' . "\n";
   $out .='<ul class="epsacrop-presets-menu-ul">' . "\n";
   $i = 0;
-  $styles = _epsacrop_load_styles_by_instance($entity_name, $field_name, $bundle);
+
+  if($entity_name == 'all' && $field_name == 'all' && $bundle == 'all') {
+    //When on the file edit page, there is no entity_name, field_name or bundle. So make all styles available for editing
+    $all_styles = array_keys(_epsacrop_load_styles());
+    $styles = array('styles' => array_combine($all_styles, $all_styles));
+  }
+  else {
+    $styles = _epsacrop_load_styles_by_instance($entity_name, $field_name, $bundle);
+  }
+
   foreach ($styles['styles'] as $style_name) {
     $style = _epsacrop_load_style($style_name);
     $effect = _epsacrop_get_effect($style);
@@ -185,6 +207,27 @@ function epsacrop_ajax($op, $fid) {
       
     break;
   }
+  drupal_json_output($return);
+  drupal_exit();
+}
+
+
+/**
+ * epsacrop_ajaxinfo function
+ *
+ * @access public
+ * @param string $fid
+ * @return void
+ */
+function epsacrop_ajaxinfo($fid) {
+  $file = file_load($fid);
+  $url = image_style_url('epsacrop_thumb', $file->uri);
+  $info = image_get_info($file->uri);
+  $return = array(
+    'url' => $url,
+    'width' => $info['width'],
+    'height' => $info['height'],
+  );
   drupal_json_output($return);
   drupal_exit();
 }
@@ -367,7 +410,7 @@ function epsacrop_form_field_ui_field_edit_form_alter(&$form, $form_state) {
     $field = $form['#field'];
     $settings = $form_state['build_info']['args'][0]['settings'];
     
-    if (isset($field) && $field['type'] == 'image') {
+    if (isset($field) && $field['type'] == 'image' || $field['type'] == 'media') {
       $styles = _epsacrop_load_styles();
       if (!empty($styles)) {
         $options = array();
@@ -415,6 +458,45 @@ function epsacrop_form_field_ui_field_edit_form_alter(&$form, $form_state) {
   }
 }
 
+
+/**
+ * Implements hook_form_media_edit_alter().
+ * Add epsacrop to media edit form.
+ */
+function epsacrop_form_media_edit_alter(&$form, $form_state) {
+  epsacrop_form_file_entity_edit_alter($form, $form_state);
+}
+
+
+/**
+ * Implements hook_form_file_entity_edit_alter().
+ * Add epsacrop to file_entity edit form.
+ */
+function epsacrop_form_file_entity_edit_alter(&$form, $form_state) {
+  if (!_epsacrop_access() || !isset($form['preview']['#file']) || !$form['preview']['#file']->type == 'image') {
+    return;
+  }
+
+  _epsacrop_include_header_html();
+  $setting = array(
+      'entity_type' => 'all',
+      'field_name' => 'all',
+      'bundle' => 'all',
+  );
+  $file = $form['preview']['#file'];
+  $info = image_get_info($file->uri);
+  $setting['fid'] = $file->fid;
+  $setting['url'] = image_style_url('epsacrop_thumb', $file->uri);
+  $setting['size'] = array($info['width'], $info['height']);;
+
+  $markup = "[<a href=\"javascript:Drupal.EPSACrop.dialog('" . $setting['entity_type'] . "', '" . $setting['field_name'] . "', '" . $setting['bundle'] . "', '" . $setting['fid'] . "', '" . $setting['url'] . "', [" . $setting['size'][0] . "," . $setting['size'][1] . "]);\">" . t("manage image crops") . "</a>]";
+  $form['epsacrop'] = array(
+    '#type' => 'markup',
+    '#markup' => $markup
+  );
+}
+
+
 /**
  * Implements hook_element_info_alter.
  * 
@@ -423,7 +505,10 @@ function epsacrop_form_field_ui_field_edit_form_alter(&$form, $form_state) {
  * @return void
  */
 function epsacrop_element_info_alter(&$type) {
-  $type['managed_file']['#after_build'][] = '_epsacrop_process_form_element';
+  $type['managed_file']['#process'][] = 'epsacrop_element_process';
+  if (module_exists('media')) {
+    $type['media']['#process'][] = 'epsacrop_element_process';
+  }
 }
 
 /**
@@ -432,22 +517,50 @@ function epsacrop_element_info_alter(&$type) {
  * @access private
  * @return void
  */
-function _epsacrop_process_form_element($element, $form_state) {
-  if (user_access('epsacrop create crops') || user_access('epsacrop edit all crops')) {
-    if (isset($element['#field_name'])) {
-      _epsacrop_include_header_html();
-      $styles = _epsacrop_load_styles_by_instance($element['#entity_type'], $element['#field_name'], $element['#bundle']);
-      if (!empty($styles) && (isset($element['#file']) && is_object($element['#file']))) {
-        $file = $element['#file'];
-        $url = image_style_url('epsacrop_thumb', $file->uri);
-        $info = image_get_info($file->uri);
-        $element['epsacrop'] = array(
-          '#type' => 'markup',
-          '#markup' => "[<a href=\"javascript:Drupal.EPSACrop.dialog('" . $element['#entity_type'] . "', '" . $element['#field_name'] . "', '" . $element['#bundle'] . "', '" . $file->fid . "', '" . $url . "', [" . $info['width'] . "," . $info['height'] . "]);\">" . t("manage image crops") . "</a>]"
-        );
-      }
-    }
+function epsacrop_element_process($element, $form_state, $form) {
+  if (!isset($element['#field_name']) || !_epsacrop_access()) {
+    return $element;
   }
+
+  _epsacrop_include_header_html();
+  $styles = _epsacrop_load_styles_by_instance($element['#entity_type'], $element['#field_name'], $element['#bundle']);
+  if (count($styles) == 0) {
+    return $element;
+  }
+
+  $setting = array(
+      'entity_type' => $element['#entity_type'],
+      'field_name' => $element['#field_name'],
+      'bundle' => $element['#bundle'],
+  );
+  if(isset($element['#file']) && is_object($element['#file']) && $file = $element['#file']) {
+    $info = image_get_info($file->uri);
+    $setting['fid'] = $file->fid;
+    $setting['url'] = image_style_url('epsacrop_thumb', $file->uri);
+    $setting['size'] = array($info['width'], $info['height']);;
+  }
+
+  if ($element['#type'] == 'media') {
+    //for media, need to include the media elements even if the file is not defined, because it's not defined when file initially selected
+    $element['#attached']['js'][] = array('type' => 'setting', 'data' => array( 'epsacrop_dialog' => array($element['#id'] => $setting)));
+    $element['#attached']['js'][] = drupal_get_path('module', 'epsacrop') . '/js/epsacrop-media.js';
+    $element['epsacrop'] = array(
+      '#type' => 'link',
+      '#href' => '',
+      '#title' => t('Manage image crops'),
+      '#attributes' => array('class' => array('button', 'manage-crop')),
+      '#options' => array('fragment' => FALSE, 'external' => TRUE),
+      '#weight' => 0,
+    );
+  }
+  else if (isset($setting['fid'])) {
+    $markup = "[<a href=\"javascript:Drupal.EPSACrop.dialog('" . $setting['entity_type'] . "', '" . $setting['field_name'] . "', '" . $setting['bundle'] . "', '" . $setting['fid'] . "', '" . $setting['url'] . "', [" . $setting['size'][0] . "," . $setting['size'][1] . "]);\">" . t("manage image crops") . "</a>]";
+    $element['epsacrop'] = array(
+      '#type' => 'markup',
+      '#markup' => $markup
+    );
+  }
+
   return $element;
 }
 

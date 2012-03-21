@@ -356,6 +356,13 @@ function epsacrop_crop_image_form($data) {
     //'#element_validate' => array('image_effect_integer_validate'), 
     //'#allow_negative' => FALSE,
   );
+
+  $form['jcrop_settings']['fallback'] = array(
+    '#type' => 'checkbox',
+    '#title' => t('Ignore if not manually set'),
+    '#description' => t("If a user does not manually set the crop, ignore these settings.  This is useful if you want to use other effects to set a default crop, which may then be overridden manually using EPSA Crop.  When this is checked, make sure the EPSA Crop effect is above any default cropping effects."),
+    '#default_value' => isset($data['jcrop_settings']['fallback']) ? $data['jcrop_settings']['fallback'] : FALSE
+  );
   
   return $form;
 }
@@ -394,7 +401,7 @@ function epsacrop_crop_image(stdClass $image, $settings) {
       }
     }
   }
-  return image_crop_effect($image, $settings);
+  return (empty($settings['jcrop_settings']['fallback']))? image_crop_effect($image, $settings) : TRUE;
 }
 
 /**

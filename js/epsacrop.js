@@ -77,10 +77,14 @@
               aspectRatio = parseFloat(aspectRatio);
             }
           }
-                                  
-          $('#epsacrop-target').attr({'src': img});
-          setTimeout(function(){
-            Drupal.EPSACrop.api = $.Jcrop('#epsacrop-target', {
+
+          var target = $('#epsacrop-target');                  
+          target.attr({'src': img});
+          var targetWait = $('<p>loading...</p>');
+          target.parent().append(targetWait);
+          target.load(function() {
+            targetWait.hide();
+            Drupal.EPSACrop.api = $.Jcrop('#' + target.attr('id'), {
               aspectRatio: (aspectRatio.length > 0) ? aspectRatio : (w/h),
               trueSize: trueSize,
               onSelect: Drupal.EPSACrop.update,
@@ -92,7 +96,7 @@
             // He doesn't calculate the scale with setSelect at the begining, so
             // I add animateTo after initate the API.
             Drupal.EPSACrop.api.animateTo(((typeof c == 'object') ? [c.x, c.y, c.x2, c.y2] : [0, 0, w, h]));
-          }, 1000); // Sleep < one second
+          });
           Drupal.EPSACrop.presets = presets;
         }catch(err) {
           alert(Drupal.t("Error on load : @error", {'@error': err.message}));

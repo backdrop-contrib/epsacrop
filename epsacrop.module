@@ -717,7 +717,7 @@ function _epsacrop_include_header_html() {
   drupal_add_js(array('epsacrop' => array('path' => $module_path)), 'setting');
   drupal_add_library('system', 'ui.dialog');
   drupal_add_js(EPSACROP_JCROP_PATH . '/js/jquery.Jcrop.js');
-  drupal_add_js(EPSACROP_JSON2_PATH . '/json2.js');
+  drupal_add_js(EPSACROP_JSON2_PATH . '/json2.js', array('preprocess' => FALSE));
   drupal_add_js($module_path . '/js/epsacrop.js');
   
   drupal_add_css(EPSACROP_JCROP_PATH . '/css/jquery.Jcrop.css');

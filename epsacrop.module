@@ -508,7 +508,7 @@ function epsacrop_form_file_entity_edit_alter(&$form, $form_state) {
   $setting['url'] = image_style_url('epsacrop_thumb', $file->uri);
   $setting['size'] = array($info['width'], $info['height']);;
 
-  $markup = "[<a href=\"javascript:Drupal.EPSACrop.dialog('" . $setting['entity_type'] . "', '" . $setting['field_name'] . "', '" . $setting['bundle'] . "', '" . $setting['fid'] . "', '" . $setting['url'] . "', [" . $setting['size'][0] . "," . $setting['size'][1] . "]);\">" . t("manage image crops") . "</a>]";
+  $markup = "[<a href=\"javascript:Drupal.EPSACrop.dialog('" . $setting['entity_type'] . "', '" . $setting['field_name'] . "', '" . $setting['bundle'] . "', '" . $setting['fid'] . "', '" . $setting['url'] . "', [" . $setting['size'][0] . "," . $setting['size'][1] . "]);\" class=\"button epsacrop\">" . t("manage image crops") . "</a>]";
   $form['epsacrop'] = array(
     '#type' => 'markup',
     '#markup' => $markup

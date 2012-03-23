@@ -279,6 +279,7 @@ function epsacrop_image_effect_info() {
   $effects['epsacrop_crop'] = array(
     'label' => t("EPSA Image Crop"),
     'help' => t(""),
+    'dimensions callback' => 'epsacrop_crop_dimensions',
     'effect callback' => 'epsacrop_crop_image',
     'form callback' => 'epsacrop_crop_image_form',
     // 'summary theme' => 'epsacrop_crop_image_summary'
@@ -286,6 +287,17 @@ function epsacrop_image_effect_info() {
   return $effects;
 }
 
+/**
+ * A wrapper around image_resize_dimensions.
+ * 
+ * @access public
+ * @param array $dimensions
+ * @param array $data
+ * @return void
+ */
+function epsacrop_crop_dimensions(array &$dimensions, array $data) {
+  image_resize_dimensions($dimensions, $data);
+}
 
 /**
  * Function that provide the effect form settings for dialog crop.

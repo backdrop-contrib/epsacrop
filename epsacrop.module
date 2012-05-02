@@ -165,7 +165,7 @@ function epsacrop_dialog($entity_name, $field_name, $bundle, $fid) {
   $out .='</div>' . "\n";
   $data = _epsacrop_get_coords_from_fid($fid);
   if (!is_string($data)) {
-    $data = drupal_json_encode($data);
+    $data = drupal_json_encode((object) $data);
   }
   $out .='<div style="display:none;"><textarea id="epsacrop-coords-data">' . $data . '</textarea></div>' . "\n";
   $out .='<br style="clear:both;" />' . "\n";

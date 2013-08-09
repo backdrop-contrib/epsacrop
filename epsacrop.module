@@ -6,10 +6,10 @@
  * @TODO Pass dialog popo throw theme functions
  * @TODO Add the in place edition
  */
- 
+
  //JCrop & json2 Path
 if (module_exists('libraries') &&
-  file_exists(libraries_get_path('Jcrop') . '/js/jquery.Jcrop.min.js') && 
+  file_exists(libraries_get_path('Jcrop') . '/js/jquery.Jcrop.min.js') &&
   file_exists(libraries_get_path('json2') . '/json2.js')) {
   define('EPSACROP_JCROP_PATH', libraries_get_path('Jcrop'));
   define('EPSACROP_JSON2_PATH', libraries_get_path('json2'));
@@ -30,7 +30,7 @@ else {
 
 /**
  * Implements hook_permission.
- * 
+ *
  * @access public
  * @return void
  */
@@ -90,7 +90,7 @@ function epsacrop_permission() {
 
 /**
  * Implements hook_menu.
- * 
+ *
  * @access public
  * @return array
  */
@@ -123,7 +123,7 @@ function epsacrop_menu() {
 
 /**
  * epsacrop_dialog function.
- * 
+ *
  * @access public
  * @param string $entity_name
  * @param string $field_name
@@ -179,7 +179,7 @@ function epsacrop_dialog($entity_name, $field_name, $bundle, $fid) {
 
 /**
  * epsacrop_ajax function.
- * 
+ *
  * @access public
  * @param string $entity_name
  * @param string $field_name
@@ -204,7 +204,7 @@ function epsacrop_ajax($op, $fid) {
       }
     break;
     case 'del':
-      
+
     break;
   }
   drupal_json_output($return);
@@ -235,7 +235,7 @@ function epsacrop_ajaxinfo($fid) {
 
 /**
  * Implements hook_file_delete().
- * 
+ *
  * @access public
  * @param stdClass $file
  * @return void
@@ -247,7 +247,7 @@ function epsacrop_file_delete($file) {
 
 /**
  * Implements hook_image_default_styles().
- * 
+ *
  * @access public
  * @return array
  */
@@ -258,8 +258,8 @@ function epsacrop_image_default_styles() {
     array(
       'name' => 'image_scale',
       'data' => array(
-        'width' => 512, 
-        'height' => 384, 
+        'width' => 512,
+        'height' => 384,
         'upscale' => 0,
       ),
       'weight' => 0,
@@ -270,7 +270,7 @@ function epsacrop_image_default_styles() {
 
 /**
  * Implements hook_image_effect_info.
- * 
+ *
  * @access public
  * @return array
  */
@@ -289,7 +289,7 @@ function epsacrop_image_effect_info() {
 
 /**
  * A wrapper around image_resize_dimensions.
- * 
+ *
  * @access public
  * @param array $dimensions
  * @param array $data
@@ -301,7 +301,7 @@ function epsacrop_crop_dimensions(array &$dimensions, array $data) {
 
 /**
  * Function that provide the effect form settings for dialog crop.
- * 
+ *
  * @access public
  * @param mixed $data
  * @return void
@@ -313,59 +313,67 @@ function epsacrop_crop_image_form($data) {
       'bgopacity' => '0.6',
     )
   );
-  
+
   //@TODO Propose a alternative style (whitout Crop Dialog effect) instead of this
-  
+
   $form = image_crop_form($data);
-  
+
+   // Override default
+  $form['width']['#required']=FALSE;
+  $form['height']['#required']=FALSE;
+
+  // Add validation callbacks to ensure that at least one value has been added
+  $form['height']['#element_validate'] = array('_epsacrop_height_validate');
+  $form['width']['#element_validate'] = array('_epsacrop_width_validate');
+
   // Change description for the anchor
   $form['anchor']['#description'] = t("The part of the image that will be retained during the crop if no coordonates will set.");
-  
+
   $form['jcrop_settings'] = array(
     '#type' => 'fieldset',
     '#title' => t("Advanced settings"),
     '#collapsed' => TRUE,
     '#collapsible' => TRUE
   );
-  
+
   $form['jcrop_settings']['aspect_ratio'] = array(
-    '#type' => 'textfield', 
-    '#title' => t('Aspect Ratio'), 
+    '#type' => 'textfield',
+    '#title' => t('Aspect Ratio'),
     '#description' => t("Aspect ratio of w/h (e.g. 1 for square)"),
-    '#default_value' => isset($data['jcrop_settings']['aspect_ratio']) ? $data['jcrop_settings']['aspect_ratio'] : '', 
-    // '#field_suffix' => ' ' . t('pixels'), 
-    // '#required' => TRUE, 
-    '#size' => 10, 
-    '#element_validate' => array('_epsacrop_aspect_ratio_validate'), 
+    '#default_value' => isset($data['jcrop_settings']['aspect_ratio']) ? $data['jcrop_settings']['aspect_ratio'] : '',
+    // '#field_suffix' => ' ' . t('pixels'),
+    // '#required' => TRUE,
+    '#size' => 10,
+    '#element_validate' => array('_epsacrop_aspect_ratio_validate'),
     // '#allow_negative' => FALSE,
   );
-  
+
   /*
   $form['jcrop_settings']['minsize'] = array();
   $form['jcrop_settings']['maxsize'] = array();
   */
-  
+
   $form['jcrop_settings']['bgcolor'] = array(
-    '#type' => 'textfield', 
-    '#title' => t('Background color'), 
+    '#type' => 'textfield',
+    '#title' => t('Background color'),
     '#description' => t("Set color of background container"),
-    '#default_value' => isset($data['jcrop_settings']['bgcolor']) ? $data['jcrop_settings']['bgcolor'] : '', 
-    // '#field_suffix' => ' ' . t('pixels'), 
-    '#required' => TRUE, 
-    '#size' => 10, 
-    // '#element_validate' => array('image_effect_integer_validate'), 
+    '#default_value' => isset($data['jcrop_settings']['bgcolor']) ? $data['jcrop_settings']['bgcolor'] : '',
+    // '#field_suffix' => ' ' . t('pixels'),
+    '#required' => TRUE,
+    '#size' => 10,
+    // '#element_validate' => array('image_effect_integer_validate'),
     // '#allow_negative' => FALSE,
   );
-  
+
   $form['jcrop_settings']['bgopacity'] = array(
-    '#type' => 'textfield', 
-    '#title' => t('Background opacity'), 
+    '#type' => 'textfield',
+    '#title' => t('Background opacity'),
     '#description' => t("Opacity of outer image when cropping"),
-    '#default_value' => isset($data['jcrop_settings']['bgopacity']) ? $data['jcrop_settings']['bgopacity'] : '', 
-    // '#field_suffix' => ' ' . t('pixels'), 
-    '#required' => TRUE, 
-    '#size' => 10, 
-    //'#element_validate' => array('image_effect_integer_validate'), 
+    '#default_value' => isset($data['jcrop_settings']['bgopacity']) ? $data['jcrop_settings']['bgopacity'] : '',
+    // '#field_suffix' => ' ' . t('pixels'),
+    '#required' => TRUE,
+    '#size' => 10,
+    //'#element_validate' => array('image_effect_integer_validate'),
     //'#allow_negative' => FALSE,
   );
 
@@ -375,13 +383,13 @@ function epsacrop_crop_image_form($data) {
     '#description' => t("If a user does not manually set the crop, ignore these settings.  This is useful if you want to use other effects to set a default crop, which may then be overridden manually using EPSA Crop.  When this is checked, make sure the EPSA Crop effect is above any default cropping effects."),
     '#default_value' => isset($data['jcrop_settings']['fallback']) ? $data['jcrop_settings']['fallback'] : FALSE
   );
-  
+
   return $form;
 }
 
 /**
  * Apply the effect to the image.
- * 
+ *
  * @access public
  * @param stdClass $image
  * @param array $settings
@@ -405,7 +413,7 @@ function epsacrop_crop_image(stdClass $image, $settings) {
             $coord = $coords[$fid][$preset];
             if (!empty($coord)) {
               if (image_crop($image, $coord['x'], $coord['y'], $coord['w'], $coord['h'])) {
-                return image_resize($image, $settings['width'], $settings['height']);
+                return image_scale($image, $settings['width'], $settings['height']);
               }
             }
           }
@@ -418,7 +426,7 @@ function epsacrop_crop_image(stdClass $image, $settings) {
 
 /**
  * Implements hook_form_FORM_ID_alter().
- * 
+ *
  * @access public
  * @param array &$form
  * @param array $form_state
@@ -428,7 +436,7 @@ function epsacrop_form_field_ui_field_edit_form_alter(&$form, $form_state) {
   if (user_access('epsacrop administer available crops')) {
     $field = $form['#field'];
     $settings = $form_state['build_info']['args'][0]['settings'];
-    
+
     if (isset($field) && $field['type'] == 'image' || $field['type'] == 'media') {
       $styles = _epsacrop_load_styles();
       if (!empty($styles)) {
@@ -436,7 +444,7 @@ function epsacrop_form_field_ui_field_edit_form_alter(&$form, $form_state) {
         foreach ($styles as $style_name => $style) {
           $options[$style_name] = $style['name'];
         }
-        
+
         $form['instance']['settings']['epsacrop'] = array(
           '#type' => 'fieldset',
           '#title' => t("EPSACrop settings"),
@@ -444,7 +452,7 @@ function epsacrop_form_field_ui_field_edit_form_alter(&$form, $form_state) {
           '#collapsible' => TRUE,
           '#tree' => TRUE
         );
-        
+
         $form['instance']['settings']['epsacrop']['styles'] = array(
           '#type' => 'checkboxes',
           '#title' => t("Availables EPSACrop styles"),
@@ -455,21 +463,21 @@ function epsacrop_form_field_ui_field_edit_form_alter(&$form, $form_state) {
         //@TODO Add the possibility to change the size of dialog (for example, for field with only one style)
         /*
         $form['instance']['settings']['epsacrop']['dialog_width'] = array(
-          '#type' => 'textfield', 
-          '#title' => t('Dialog width'), 
-          '#default_value' => isset($settings['epsacrop']['dialog_width']) ? $settings['epsacrop']['dialog_width'] : '512', 
-          '#field_suffix' => ' ' . t('pixels'), 
-          '#required' => TRUE, 
-          '#size' => 10, 
+          '#type' => 'textfield',
+          '#title' => t('Dialog width'),
+          '#default_value' => isset($settings['epsacrop']['dialog_width']) ? $settings['epsacrop']['dialog_width'] : '512',
+          '#field_suffix' => ' ' . t('pixels'),
+          '#required' => TRUE,
+          '#size' => 10,
         );
-        
+
         $form['instance']['settings']['epsacrop']['dialog_height'] = array(
-          '#type' => 'textfield', 
-          '#title' => t('Dialog height'), 
-          '#default_value' => isset($settings['epsacrop']['dialog_height']) ? $settings['epsacrop']['dialog_height'] : '384', 
-          '#field_suffix' => ' ' . t('pixels'), 
-          '#required' => TRUE, 
-          '#size' => 10, 
+          '#type' => 'textfield',
+          '#title' => t('Dialog height'),
+          '#default_value' => isset($settings['epsacrop']['dialog_height']) ? $settings['epsacrop']['dialog_height'] : '384',
+          '#field_suffix' => ' ' . t('pixels'),
+          '#required' => TRUE,
+          '#size' => 10,
         );
         */
       }
@@ -518,7 +526,7 @@ function epsacrop_form_file_entity_edit_alter(&$form, $form_state) {
 
 /**
  * Implements hook_element_info_alter.
- * 
+ *
  * @access public
  * @param array &$type
  * @return void
@@ -532,7 +540,7 @@ function epsacrop_element_info_alter(&$type) {
 
 /**
  * Helper function that add a link in image widget field to open a dialog for the crops.
- * 
+ *
  * @access private
  * @return void
  */
@@ -586,7 +594,7 @@ function epsacrop_element_process($element, $form_state, $form) {
 
 /**
  * Validate a aspect ration information.
- * 
+ *
  * @access public
  * @param array $element
  * @param array &$form_state
@@ -608,8 +616,46 @@ function _epsacrop_aspect_ratio_validate($element, &$form_state) {
 }
 
 /**
+ * Validate width information.
+ *
+ * @access private
+ * @param array $element
+ * @param array &$form_state
+ * @return void
+ */
+function _epsacrop_width_validate($element, &$form_state) {
+  $value = $element['#value'];
+
+  if (empty($value)) {
+    if(empty($form_state['complete form']['data']['height']['#value'])) {
+        form_error($element, t('Width cannot be empty without a height value'));
+    }
+  }
+}
+
+
+/**
+ * Validate height information.
+ *
+ * @access private
+ * @param array $element
+ * @param array &$form_state
+ * @return void
+ */
+function _epsacrop_height_validate($element, &$form_state) {
+  $value = $element['#value'];
+
+  if (empty($value)) {
+    if(empty($form_state['complete form']['data']['width']['#value'])) {
+        form_error($element, t('Height cannot be empty without a width value'));
+    }
+  }
+}
+
+
+/**
  * Helper function that get all styles with epsacrop effect.
- * 
+ *
  * @access private
  * @return array
  */
@@ -630,7 +676,7 @@ function _epsacrop_load_styles() {
 
 /**
  * This function load only on style that implement epsacrop effect.
- * 
+ *
  * @access private
  * @param string $style_name
  * @return bool
@@ -649,7 +695,7 @@ function _epsacrop_load_style($style_name) {
 
 /**
  * Return the effect issue from the module.
- * 
+ *
  * @access private
  * @param mixed $style
  * @return void
@@ -658,7 +704,7 @@ function _epsacrop_get_effect($style) {
   if (empty($style) || !is_array($style) || (!isset($style['effects']) || !is_array($style['effects']))) {
     return FALSE;
   }
-  
+
   foreach ($style['effects'] as $eid => $effect) {
     if ($effect['module'] == 'epsacrop') {
       return $effect;
@@ -670,7 +716,7 @@ function _epsacrop_get_effect($style) {
 
 /**
  * Get all style that are attach to one instance of field.
- * 
+ *
  * @access private
  * @param string $entity_type
  * @param string $field_name
@@ -692,7 +738,7 @@ function _epsacrop_load_styles_by_instance($entity_type, $field_name, $bundle) {
 
 /**
  * Helper function that get the style name from image url.
- * 
+ *
  * @access private
  * @return void
  */
@@ -708,7 +754,7 @@ function _epsacrop_get_style_name_from_url() {
 
 /**
  * This function include all files (JavaScript & CSS) needed by the module.
- * 
+ *
  * @access private
  * @return void
  */
@@ -719,7 +765,7 @@ function _epsacrop_include_header_html() {
   drupal_add_js(EPSACROP_JCROP_PATH . '/js/jquery.Jcrop.js');
   drupal_add_js(EPSACROP_JSON2_PATH . '/json2.js', array('preprocess' => FALSE));
   drupal_add_js($module_path . '/js/epsacrop.js');
-  
+
   drupal_add_css(EPSACROP_JCROP_PATH . '/css/jquery.Jcrop.css');
   drupal_add_css($module_path . '/css/epsacrop.css');
 }
@@ -728,7 +774,7 @@ function _epsacrop_include_header_html() {
 
 /**
  * Return the version of jcrop library.
- * 
+ *
  * @access public
  * @return void
  */
@@ -751,7 +797,7 @@ function _epsacrop_jcrop_get_version() {
 
 /**
  * Check if json2.js is findable.
- * 
+ *
  * @access private
  * @return void
  */
@@ -767,7 +813,7 @@ function _epsacrop_is_json2_exists() {
 
 /**
  * Check if we've coordonates for one file.
- * 
+ *
  * @access private
  * @param int $fid
  * @return bool
@@ -780,14 +826,14 @@ function _epsacrop_fid_exists($fid) {
       ->execute()
       ->rowCount();
   }
-  
+
   return 0;
 }
 
 
 /**
  * Insert coordonates for one file in the database.
- * 
+ *
  * @access private
  * @param int $fid
  * @param array $coords
@@ -805,7 +851,7 @@ function _epsacrop_add_file($fid, $coords) {
 
 /**
  * Save the coordonates in the database.
- * 
+ *
  * @access private
  * @param int $fid
  * @param array $coords
@@ -829,7 +875,7 @@ function _epsacrop_save_coords($fid, $coords) {
 
 /**
  * Delete the coordonates in the database.
- * 
+ *
  * @access private
  * @param fid $fid
  * @return void
@@ -843,7 +889,7 @@ function _epsacrop_delete_file($fid) {
 
 /**
  * Get all coordonates for one file.
- * 
+ *
  * @access private
  * @param int $fid
  * @return array
@@ -869,7 +915,7 @@ function _epsacrop_get_coords_from_fid($fid) {
 
 /**
  * Try to find the fid from a uri.
- * 
+ *
  * @access private
  * @param string $path
  * @return int
@@ -885,7 +931,7 @@ function _epsacrop_get_fid_from_uri($uri) {
       ->range(0, 1)
       ->execute()
       ->fetchField();
-    
+
     $fids[$uri] = (int) $result;
   }
   return $fids[$uri];
@@ -894,7 +940,7 @@ function _epsacrop_get_fid_from_uri($uri) {
 
 /**
  * Try to get the uri from a fid.
- * 
+ *
  * @access private
  * @param mixed $fid
  * @return void
@@ -913,7 +959,7 @@ function _epsacrop_get_uri_from_fid($fid) {
 
 /**
  * Callback for hook_menu.
- * 
+ *
  * @access public
  * @param mixed $access
  * @return void

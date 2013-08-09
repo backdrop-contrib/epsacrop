@@ -284,6 +284,13 @@ function epsacrop_image_effect_info() {
     'form callback' => 'epsacrop_crop_image_form',
     // 'summary theme' => 'epsacrop_crop_image_summary'
   );
+  $effects['epsacrop_crop_reuse'] = array(
+    'label' => t("Reuse EPSA Image Crop"),
+    'help' => t("Use the image crop selection from another image style"),
+    'effect callback' => 'epsacrop_crop_image_reuse',
+    'form callback' => 'epsacrop_crop_image_reuse_form',
+    // 'summary theme' => 'epsacrop_crop_image_reuse_summary'
+  );
   return $effects;
 }
 
@@ -403,7 +410,12 @@ function epsacrop_crop_image(stdClass $image, $settings) {
       $coords = drupal_json_decode($coords);
     }
     if (!empty($coords) && is_array($coords)) {
-      $style_name = _epsacrop_get_style_name_from_url();
+      if (isset($GLOBALS['jcrop_style'])) {
+        $style_name = $GLOBALS['jcrop_style'];
+      } 
+      else {
+        $style_name = _epsacrop_get_style_name_from_url();
+      }
       if (!empty($style_name)) {
         $style = _epsacrop_load_style($style_name);
         if (!empty($style)) {
@@ -422,6 +434,59 @@ function epsacrop_crop_image(stdClass $image, $settings) {
     }
   }
   return (empty($settings['jcrop_settings']['fallback']))? image_crop_effect($image, $settings) : TRUE;
+}
+
+/**
+ * Function that provide the effect form settings for reusing epsa crop.
+ * 
+ * @access public
+ * @param mixed $data
+ * @return void
+ */
+function epsacrop_crop_image_reuse_form($data) {
+  $styles = array_keys(_epsacrop_load_styles());
+  $styles = array_combine($styles, $styles);
+  //exclude the current style
+  if ($key = array_search(arg(5), $styles)) {
+    unset($styles[$key]);
+  }
+  if (count($styles) > 0) {
+    $form['jcrop_reuse'] = array(
+      '#title' => t('Reuse the crop selection from'),
+      '#type' => 'select',
+      '#options' => $styles,
+      '#default_value' => isset($data['jcrop_reuse']) ? $data['jcrop_reuse'] : '',
+    );
+  }
+  else {
+    $form['jcrop_reuse_message'] = array(
+      '#value' => t('No styles were found currently using EPSA crop. Please create a style with EPSA crop first.'),
+    );
+  }
+  return $form;
+}
+
+/**
+ * Apply the effect to the image on reuse.
+ * 
+ * @access public
+ * @param stdClass $image
+ * @param array $settings
+ * @return void
+ */
+function epsacrop_crop_image_reuse(stdClass $image, $settings) {
+  if (!isset($settings['jcrop_reuse'])) {
+    return;
+  }
+  $style = _epsacrop_load_style($settings['jcrop_reuse']);
+  foreach($style['effects'] as $effect) {
+    if ($effect['name'] == 'epsacrop_crop') {
+      $GLOBALS['jcrop_style'] = $style['name'];
+      image_effect_apply($image, $effect);
+      return TRUE;
+    }
+  }
+  return FALSE;	
 }
 
 /**

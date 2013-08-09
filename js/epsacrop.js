@@ -7,7 +7,7 @@
     init: false,
     dialog: function (type_name, field_name, bundle, delta, img, trueSize) {
       $('body').find('#EPSACropDialog').remove().end().append('<div title="'+ Drupal.t("Cropping Image") +'" id="EPSACropDialog"></div>');
-      
+
       // Translatables buttons
       var buttons = {};
       var saveLabel = Drupal.t("Apply crop");
@@ -27,7 +27,7 @@
         $(this).dialog('close');
         $('#EPSACropDialog').remove();
       };
-      
+
       $('#EPSACropDialog').dialog({
           bgiframe: true,
           height: 600,
@@ -46,28 +46,28 @@
         }).load(Drupal.settings.basePath +'?q=crop/dialog/' + type_name + '/' + field_name +'/' + bundle +'/'+ delta, function (){
         try{
           var item = $('.epsacrop-presets-menu a[class=selected]');
-          var preset = item.attr('id'); 
+          var preset = item.attr('id');
           var coords = item.attr('rel').split('x');
           var aspectRatio = item.attr('data-aspect-ratio');
           var bgcolor = item.attr('data-bgcolor');
           var bgopacity = parseFloat(item.attr('data-bgopacity'));
-          
+
           var w = parseInt(coords[0]);
           var h = parseInt(coords[1]);
-          
+
           Drupal.EPSACrop.preset = preset;
           Drupal.EPSACrop.delta = delta;
-          
-          presets = Drupal.EPSACrop.presets;
+
+          presets = Drupal.EPSACrop.presets || {};
           if (Drupal.EPSACrop.init === false && $('#epsacrop-coords-data').val().length > 0) {
-            presets = JSON.parse( $('#epsacrop-coords-data').val());
+            presets = JSON.parse( $('#epsacrop-coords-data').val()) || {};
             Drupal.EPSACrop.init = true;
           }
-                              
+
           if ((typeof presets[delta] == 'object') && (typeof presets[delta][preset] == 'object') ) {
             var c = presets[delta][preset];
           }
-          
+
           // Change the ratio into numeric
           if(aspectRatio.length > 0) {
             if(aspectRatio.split('/').length == 0) {
@@ -78,7 +78,7 @@
             }
           }
 
-          var target = $('#epsacrop-target');                  
+          var target = $('#epsacrop-target');
           target.attr({'src': img});
           var targetWait = $('<p>loading...</p>');
           target.parent().append(targetWait);
@@ -97,7 +97,7 @@
             // I add animateTo after initate the API.
             Drupal.EPSACrop.api.animateTo(((typeof c == 'object') ? [c.x, c.y, c.x2, c.y2] : [0, 0, w, h]));
           });
-          Drupal.EPSACrop.presets = presets;
+          Drupal.EPSACrop.presets = presets || {};
         }catch(err) {
           alert(Drupal.t("Error on load : @error", {'@error': err.message}));
         }
@@ -106,18 +106,18 @@
     crop: function ( preset ) {
       $('.epsacrop-presets-menu a').removeClass('selected');
       $('.epsacrop-presets-menu a#' + preset).addClass('selected');
-      
+
       var item = $('.epsacrop-presets-menu a[class=selected]');
       var coords = item.attr('rel').split('x');
       var aspectRatio = item.attr('data-aspect-ratio');
       var bgcolor = item.attr('data-bgcolor');
       var bgopacity = parseFloat(item.attr('data-bgopacity'));
-      var presets = Drupal.EPSACrop.presets;
+      var presets = Drupal.EPSACrop.presets || {};
       var delta = Drupal.EPSACrop.delta;
-      
+
       var w = parseInt(coords[0]);
       var h = parseInt(coords[1]);
-      
+
       // Change the ratio in numeric
       if(aspectRatio.length > 0) {
         if(aspectRatio.split('/').length == 0) {
@@ -129,7 +129,7 @@
       }
 
       Drupal.EPSACrop.preset = preset;
-      
+
       if(typeof presets[delta] == 'object' && typeof presets[delta][preset] == 'object' ) {
         var c = presets[delta][preset];
         Drupal.EPSACrop.api.animateTo([c.x, c.y, c.x2, c.y2]);
@@ -145,12 +145,12 @@
     update: function ( c ) {
       var preset = Drupal.EPSACrop.preset;
       var delta = Drupal.EPSACrop.delta;
-      var presets = Drupal.EPSACrop.presets;
+      var presets = Drupal.EPSACrop.presets || {};
 
       if(typeof presets[delta] != 'object') {
         presets[delta] = {};
       }
-      
+
       presets[delta][preset] = c;
       Drupal.EPSACrop.presets = presets;
     }

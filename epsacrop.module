@@ -158,8 +158,9 @@ function epsacrop_dialog($entity_name, $field_name, $bundle, $fid) {
   foreach ($styles['styles'] as $style_name) {
     $style = _epsacrop_load_style($style_name);
     $effect = _epsacrop_get_effect($style);
-    $id = 'epsacrop-' . $effect['ieid'] . '-' . $effect['isid'];
-    $out .='<li class="epsacrop-presets-menu-li"><a data-bgcolor="' . $effect['data']['jcrop_settings']['bgcolor'] . '" data-bgopacity="' . $effect['data']['jcrop_settings']['bgopacity'] . '" data-aspect-ratio="' . $effect['data']['jcrop_settings']['aspect_ratio'] . '" id="' . $id . '" href="javascript:Drupal.EPSACrop.crop(\'' . $id . '\');" rel="' . $effect['data']['width'] . 'x' . $effect['data']['height'] . '"' . ($i++ == 0 ? ' class="selected"' : '') . '>' . $style['name'] . '</a></li>';
+    $effect = current($effect);
+    $id = 'epsacrop-' . $style_name;
+    $out .='<li class="epsacrop-presets-menu-li"><a data-bgcolor="' . $effect['data']['jcrop_settings']['bgcolor'] . '" data-bgopacity="' . $effect['data']['jcrop_settings']['bgopacity'] . '" data-aspect-ratio="' . $effect['data']['jcrop_settings']['aspect_ratio'] . '" id="' . $id . '" href="javascript:Drupal.EPSACrop.crop(\'' . $id . '\');" rel="' . $effect['data']['width'] . 'x' . $effect['data']['height'] . '"' . ($i++ == 0 ? ' class="selected"' : '') . '>' . $style_name . '</a></li>';
   }
   $out .='</ul>' . "\n";
   $out .='</div>' . "\n";
@@ -421,8 +422,9 @@ function epsacrop_crop_image(stdClass $image, $settings) {
         if (!empty($style)) {
           $effect = _epsacrop_get_effect($style);
           if (!empty($effect)) {
-            $preset = 'epsacrop-' . $effect['ieid'] . '-' . $effect['isid'];
-            $coord = $coords[$fid][$preset];
+            $effect = current($effect);
+            $preset = 'epsacrop-' . $style_name;
+            $coord = isset($coords[$fid][$preset]) ? $coords[$fid][$preset] : '';
             if (!empty($coord)) {
               if (image_crop($image, $coord['x'], $coord['y'], $coord['w'], $coord['h'])) {
                 return image_scale($image, $settings['width'], $settings['height']);
@@ -772,7 +774,7 @@ function _epsacrop_get_effect($style) {
 
   foreach ($style['effects'] as $eid => $effect) {
     if ($effect['module'] == 'epsacrop') {
-      return $effect;
+      return array($eid => $effect);
     }
   }
   return FALSE;

@@ -56,6 +56,9 @@
           var h = parseInt(coords[1]);
 
           Drupal.EPSACrop.preset = preset;
+          if (Drupal.EPSACrop.delta === null || Drupal.EPSACrop.delta !== delta) {
+            Drupal.EPSACrop.init = false;
+          }
           Drupal.EPSACrop.delta = delta;
 
           presets = Drupal.EPSACrop.presets || {};

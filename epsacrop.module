@@ -160,7 +160,8 @@ function epsacrop_dialog($entity_name, $field_name, $bundle, $fid) {
     $effect = _epsacrop_get_effect($style);
     $effect = current($effect);
     $id = 'epsacrop-' . $style_name;
-    $out .='<li class="epsacrop-presets-menu-li"><a data-bgcolor="' . $effect['data']['jcrop_settings']['bgcolor'] . '" data-bgopacity="' . $effect['data']['jcrop_settings']['bgopacity'] . '" data-aspect-ratio="' . $effect['data']['jcrop_settings']['aspect_ratio'] . '" id="' . $id . '" href="javascript:Drupal.EPSACrop.crop(\'' . $id . '\');" rel="' . $effect['data']['width'] . 'x' . $effect['data']['height'] . '"' . ($i++ == 0 ? ' class="selected"' : '') . '>' . $style_name . '</a></li>';
+    $name = is_array($style) && !empty($style['label']) ? $style['label'] : $style_name;
+    $out .='<li class="epsacrop-presets-menu-li"><a data-bgcolor="' . $effect['data']['jcrop_settings']['bgcolor'] . '" data-bgopacity="' . $effect['data']['jcrop_settings']['bgopacity'] . '" data-aspect-ratio="' . $effect['data']['jcrop_settings']['aspect_ratio'] . '" id="' . $id . '" href="javascript:Drupal.EPSACrop.crop(\'' . $id . '\');" rel="' . $effect['data']['width'] . 'x' . $effect['data']['height'] . '"' . ($i++ == 0 ? ' class="selected"' : '') . '>' . $name . '</a></li>';
   }
   $out .='</ul>' . "\n";
   $out .='</div>' . "\n";

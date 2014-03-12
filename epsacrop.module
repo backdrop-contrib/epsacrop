@@ -336,7 +336,7 @@ function epsacrop_crop_image_form($data) {
   $form['width']['#element_validate'] = array('_epsacrop_width_validate');
 
   // Change description for the anchor
-  $form['anchor']['#description'] = t("The part of the image that will be retained during the crop if no coordonates will set.");
+  $form['anchor']['#description'] = t("The part of the image that will be retained during the crop if no coordinates are set.");
 
   $form['jcrop_settings'] = array(
     '#type' => 'fieldset',

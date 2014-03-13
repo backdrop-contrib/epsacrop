@@ -201,7 +201,6 @@ function epsacrop_ajax($op, $fid) {
     case 'put':
       if (isset($_POST) && (isset($_POST['coords']) && !empty($_POST['coords']))) {
         $coords = $_POST['coords'];
-        $fid = $fid;
         _epsacrop_save_coords($fid, $coords);
       }
     break;

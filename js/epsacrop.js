@@ -13,8 +13,15 @@
       var saveLabel = Drupal.t("Apply crop");
       var cancelLabel = Drupal.t("Cancel");
 
+      // Support multilingual sites with path prefixes. It's either this or
+      // support for non-clean URL's, we can't have both.
+      var pathPrefix = '?q=';
+      if (Drupal.settings.pathPrefix !== undefined && Drupal.settings.pathPrefix != '') {
+        pathPrefix = Drupal.settings.pathPrefix;
+      }
+
       buttons[saveLabel] = function (){
-        $.post(Drupal.settings.basePath +'?q=crop/ajax/put/' + delta, {'coords': JSON.stringify(Drupal.EPSACrop.presets)});
+        $.post(Drupal.settings.basePath + pathPrefix +'crop/ajax/put/' + delta, {'coords': JSON.stringify(Drupal.EPSACrop.presets)});
         var field = field_name.replace(/_/g, '-');
         var welem = $('div[id*="' + field + '"]').eq(0);
         if(welem.find('.warning').size() == 0) {
@@ -43,7 +50,7 @@
           close: function () {
             $('#EPSACropDialog').remove();
           }
-        }).load(Drupal.settings.basePath +'?q=crop/dialog/' + type_name + '/' + field_name +'/' + bundle +'/'+ delta, function (){
+        }).load(Drupal.settings.basePath + pathPrefix +'crop/dialog/' + type_name + '/' + field_name +'/' + bundle +'/'+ delta, function (){
         try{
           var item = $('.epsacrop-presets-menu a[class=selected]');
           var preset = item.attr('id');

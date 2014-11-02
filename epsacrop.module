@@ -859,14 +859,15 @@ function _epsacrop_include_header_html() {
  */
 function _epsacrop_jcrop_get_version() {
   $version = 0;
-  if (file_exists(EPSACROP_JCROP_PATH . '/js/jquery.Jcrop.js')) {
-    $lines = file(EPSACROP_JCROP_PATH . '/js/jquery.Jcrop.js');
+  $filepath = EPSACROP_JCROP_PATH . '/js/jquery.Jcrop.js';
+  if (file_exists($filepath)) {
+    $lines = file($filepath);
     array_shift($lines); // First line is simple comment
     if (preg_match('/v(.*)/', array_shift($lines), $matches)) {
       $version = $matches[1];
     }
     else {
-      drupal_set_message(t('Could be give the version of Jcrop, check your install'), 'error');
+      drupal_set_message(t('Could be give the version of Jcrop %path, check your install.', array('%path' => $filepath)), 'error');
       $version = 0;
     }
   }
@@ -881,10 +882,11 @@ function _epsacrop_jcrop_get_version() {
  * @return void
  */
 function _epsacrop_is_json2_exists() {
-  if (file_exists(EPSACROP_JSON2_PATH . '/json2.js')) {
-    return TRUE;
-  }
-  drupal_set_message(t('Could not find the json2.js file, check your install'), 'error');
+  $filepath = EPSACROP_JSON2_PATH . '/json2.js';
+  if (file_exists($filepath)) {
+     return TRUE;
+   }
+  drupal_set_message(t('Could be find the json2.js file %path, check your install.', array('%path' => $filepath)), 'error');
   return FALSE;
 }
 

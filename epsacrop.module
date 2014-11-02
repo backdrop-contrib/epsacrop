@@ -881,13 +881,14 @@ function _epsacrop_jcrop_get_version() {
  * @access private
  * @return void
  */
-function _epsacrop_is_json2_exists() {
+function _epsacrop_is_json2_exists($display_message = FALSE) {
   $filepath = EPSACROP_JSON2_PATH . '/json2.js';
   if (file_exists($filepath)) {
-     return TRUE;
-   }
-  drupal_set_message(t('Could be find the json2.js file %path, check your install.', array('%path' => $filepath)), 'error');
-  return FALSE;
+    return TRUE;
+  }
+  if ($display_message) {
+    drupal_set_message(t('Could be find the json2.js file %path, check your install.', array('%path' => $filepath)), 'error');
+  }
 }
 
 

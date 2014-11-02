@@ -567,7 +567,7 @@ function epsacrop_form_media_edit_alter(&$form, $form_state) {
  * Add epsacrop to file_entity edit form.
  */
 function epsacrop_form_file_entity_edit_alter(&$form, $form_state) {
-  if (!_epsacrop_access() || !isset($form['preview']['#file']) || !$form['preview']['#file']->type == 'image') {
+  if (!_epsacrop_access() || !isset($form['preview']['#file']) || $form['preview']['#file']->type != 'image') {
     return;
   }
 
@@ -589,7 +589,7 @@ function epsacrop_form_file_entity_edit_alter(&$form, $form_state) {
     image_style_create_derivative(image_style_load('epsacrop_thumb'), $file->uri, $preview_file);
   }
 
-  $markup = "[<a href=\"javascript:Drupal.EPSACrop.dialog('" . $setting['entity_type'] . "', '" . $setting['field_name'] . "', '" . $setting['bundle'] . "', '" . $setting['fid'] . "', '" . $setting['url'] . "', [" . $setting['size'][0] . "," . $setting['size'][1] . "]);\" class=\"button epsacrop\">" . t("manage image crops") . "</a>]";
+  $markup = "<a href=\"javascript:Drupal.EPSACrop.dialog('" . $setting['entity_type'] . "', '" . $setting['field_name'] . "', '" . $setting['bundle'] . "', '" . $setting['fid'] . "', '" . $setting['url'] . "', [" . $setting['size'][0] . "," . $setting['size'][1] . "]);\" class=\"button epsacrop\">" . t("manage image crops") . "</a>";
   $form['epsacrop'] = array(
     '#type' => 'markup',
     '#markup' => $markup
@@ -660,7 +660,7 @@ function epsacrop_element_process($element, $form_state, $form) {
     );
   }
   else if (isset($setting['fid'])) {
-    $markup = "[<a href=\"javascript:Drupal.EPSACrop.dialog('" . $setting['entity_type'] . "', '" . $setting['field_name'] . "', '" . $setting['bundle'] . "', '" . $setting['fid'] . "', '" . $setting['url'] . "', [" . $setting['size'][0] . "," . $setting['size'][1] . "]);\">" . t("manage image crops") . "</a>]";
+    $markup = "<a href=\"javascript:Drupal.EPSACrop.dialog('" . $setting['entity_type'] . "', '" . $setting['field_name'] . "', '" . $setting['bundle'] . "', '" . $setting['fid'] . "', '" . $setting['url'] . "', [" . $setting['size'][0] . "," . $setting['size'][1] . "]);\">" . t("manage image crops") . "</a>";
     $element['epsacrop'] = array(
       '#type' => 'markup',
       '#markup' => $markup

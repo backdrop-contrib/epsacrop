@@ -105,7 +105,14 @@
             // animateTo, to avoid one bug from Jcrop I guess,
             // He doesn't calculate the scale with setSelect at the begining, so
             // I add animateTo after initate the API.
-            Drupal.EPSACrop.api.animateTo(((typeof c == 'object') ? [c.x, c.y, c.x2, c.y2] : [0, 0, w, h]));
+            Drupal.EPSACrop.api.animateTo(((typeof c == 'object') ? [c.x, c.y, c.x2, c.y2] : [0, 0, w, h]), function () {
+              if (typeof presets[delta] == 'undefined') {
+                presets[delta] = {};
+              }
+              if (typeof presets[delta][preset] == 'undefined') {
+                presets[delta][preset] = Drupal.EPSACrop.api.tellSelect();
+              }
+            });
           });
           Drupal.EPSACrop.presets = presets || {};
         }catch(err) {
@@ -140,11 +147,19 @@
 
       Drupal.EPSACrop.preset = preset;
 
-      if(typeof presets[delta] == 'object' && typeof presets[delta][preset] == 'object' ) {
+      if (typeof presets[delta] == 'object' && typeof presets[delta][preset] == 'object' ) {
         var c = presets[delta][preset];
         Drupal.EPSACrop.api.animateTo([c.x, c.y, c.x2, c.y2]);
-      }else{
-        Drupal.EPSACrop.api.animateTo([0, 0, w, h]);
+      }
+      else{
+        Drupal.EPSACrop.api.animateTo([0, 0, w, h], function () {
+          if(typeof presets[delta] == 'undefined') {
+            presets[delta] = {};
+          }
+          if (typeof presets[delta][preset] == 'undefined') {
+            presets[delta][preset] = Drupal.EPSACrop.api.tellSelect();
+          }
+        });
       }
       Drupal.EPSACrop.api.setOptions({
         aspectRatio: (aspectRatio.length > 0) ? aspectRatio : (w/h),

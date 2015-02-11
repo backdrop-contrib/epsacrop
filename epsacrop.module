@@ -337,6 +337,13 @@ function epsacrop_crop_image_form($data) {
   // Change description for the anchor
   $form['anchor']['#description'] = t("The part of the image that will be retained during the crop if no coordinates are set.");
 
+  $form['disable_scale'] = array(
+    '#type' => 'checkbox',
+    '#title' => t('Disable image scaling'),
+    '#description' => t("Only crop the image to the selected area and don't scale it. When enabled the above dimensions are used only when the cropping area is not selected."),
+    '#default_value' => isset($data['disable_scale']) ? $data['disable_scale'] : 0,
+  );
+
   $form['jcrop_settings'] = array(
     '#type' => 'fieldset',
     '#title' => t("Advanced settings"),
@@ -427,6 +434,9 @@ function epsacrop_crop_image(stdClass $image, $settings) {
             $coord = isset($coords[$fid][$preset]) ? $coords[$fid][$preset] : '';
             if (!empty($coord)) {
               if (image_crop($image, $coord['x'], $coord['y'], $coord['w'], $coord['h'])) {
+                if (isset($settings['disable_scale']) && $settings['disable_scale']) {
+                  return TRUE;
+                }
                 return image_scale($image, $settings['width'], $settings['height']);
               }
             }

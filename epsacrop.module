@@ -425,6 +425,9 @@ function epsacrop_crop_image(stdClass $image, $settings) {
         $style_name = _epsacrop_get_style_name_from_url();
       }
       if (!empty($style_name)) {
+        // Trigger presave hook.
+        module_invoke_all('epsacrop_crop_image_presave', $image, $settings, $coords, $style_name);
+
         $style = _epsacrop_load_style($style_name);
         if (!empty($style)) {
           $effect = _epsacrop_get_effect($style);
@@ -434,6 +437,8 @@ function epsacrop_crop_image(stdClass $image, $settings) {
             $coord = isset($coords[$fid][$preset]) ? $coords[$fid][$preset] : '';
             if (!empty($coord)) {
               if (image_crop($image, $coord['x'], $coord['y'], $coord['w'], $coord['h'])) {
+                // Trigger postsave hook.
+                module_invoke_all('epsacrop_crop_image_postsave', $image, $settings, $coords, $style_name);
                 if (isset($settings['disable_scale']) && $settings['disable_scale']) {
                   return TRUE;
                 }

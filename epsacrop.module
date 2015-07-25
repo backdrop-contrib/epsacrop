@@ -618,6 +618,10 @@ function epsacrop_element_info_alter(&$type) {
   if (module_exists('media')) {
     $type['media']['#process'][] = 'epsacrop_element_process';
   }
+
+  if (isset($type['mfw_managed_file'])) {
+    $type['mfw_managed_file']['#process'][] = 'epsacrop_element_process';
+  }
 }
 
 /**

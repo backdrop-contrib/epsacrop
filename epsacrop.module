@@ -283,6 +283,12 @@ function epsacrop_image_effect_info() {
  * @return void
  */
 function epsacrop_crop_dimensions(array &$dimensions, array $data) {
+  if (!$data['height']) {
+    $data['height'] = NULL;
+  }
+  if (!$data['width']) {
+    $data['width'] = NULL;
+  }
   image_resize_dimensions($dimensions, $data);
 }
 

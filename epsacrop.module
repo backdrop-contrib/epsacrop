@@ -746,7 +746,7 @@ function _epsacrop_load_styles() {
   $styles = image_styles();
   foreach ($styles as $style_name => $style) {
     foreach ($style['effects'] as $sid => $effect) {
-      if ($effect['module'] == 'epsacrop') {
+      if ($effect['module'] == 'epsacrop' && $effect['name'] == 'epsacrop_crop') {
         $return[$style_name] = $style;
         break;
       }

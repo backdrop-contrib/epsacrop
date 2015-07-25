@@ -896,11 +896,11 @@ function _epsacrop_is_json2_exists($display_message = FALSE) {
  */
 function _epsacrop_fid_exists($fid) {
   if (!empty($fid)) {
-    return db_select('epsacrop_files', 'e')
+    return count(db_select('epsacrop_files', 'e')
       ->fields('e')
       ->condition('fid', $fid)
       ->execute()
-      ->rowCount();
+      ->fetchAll());
   }
 
   return 0;

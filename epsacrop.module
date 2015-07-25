@@ -395,6 +395,9 @@ function epsacrop_crop_image(stdClass $image, $settings) {
     $coords = _epsacrop_get_coords_from_fid($fid);
     if (is_string($coords)) {
       $coords = drupal_json_decode($coords);
+      if (is_object($coords)) {
+        $coords = (array) $coords;
+      }
     }
     if (!empty($coords) && is_array($coords)) {
       if (isset($GLOBALS['jcrop_style'])) {
@@ -979,7 +982,7 @@ function _epsacrop_delete_file($fid) {
 function _epsacrop_get_coords_from_fid($fid) {
   $files = &drupal_static(__FUNCTION__);
   if (empty($files[$fid])) {
-    $files[$fid] = array();
+    $files[$fid] = new stdClass;
     $has_coords = _epsacrop_fid_exists($fid);
     if ($has_coords != 0) {
       $result = db_select('epsacrop_files', 'e')

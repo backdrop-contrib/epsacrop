@@ -814,6 +814,10 @@ function _epsacrop_load_styles_by_instance($entity_type, $field_name, $bundle) {
       $styles = $instance['settings']['epsacrop'];
     }
   }
+
+  // Allow other modules to alter list of styles
+  drupal_alter('epsacrop_load_styles', $styles, $entity_type, $field_name, $bundle);
+
   return $styles;
 }
 

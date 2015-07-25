@@ -5,3 +5,8 @@ core = 7.x
 package = Media
 dependencies[] = image
 dependencies[] = libraries
+
+libraries[Jcrop][download][url] = https://github.com/tapmodo/Jcrop/archive/master.zip
+libraries[Jcrop][download][type] = get
+libraries[JSON-js][download][url] = https://github.com/douglascrockford/JSON-js/archive/master.zip
+libraries[JSON-js][download][type] = get

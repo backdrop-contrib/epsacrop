@@ -7,27 +7,6 @@
  * @TODO Add the in place edition
  */
 
- //JCrop & json2 Path
-if (module_exists('libraries') &&
-  file_exists(libraries_get_path('Jcrop') . '/js/jquery.Jcrop.min.js') &&
-  file_exists(libraries_get_path('json2') . '/json2.js')) {
-  define('EPSACROP_JCROP_PATH', libraries_get_path('Jcrop'));
-  define('EPSACROP_JSON2_PATH', libraries_get_path('json2'));
-}
-else {
-  $base = 'sites/all/libraries';
-  if (file_exists($base . '/Jcrop/js/jquery.Jcrop.min.js') && file_exists($base . '/json2/json2.js')) {
-    define('EPSACROP_JCROP_PATH', $base . '/Jcrop');
-    define('EPSACROP_JSON2_PATH', $base . '/json2');
-  }
-  else{
-    $path_module = drupal_get_path('module', 'epsacrop');
-    define('EPSACROP_JCROP_PATH', $path_module . '/Jcrop');
-    define('EPSACROP_JSON2_PATH', $path_module . '/json2');
-  }
-}
-
-
 /**
  * Implements hook_permission.
  *
@@ -856,11 +835,11 @@ function _epsacrop_include_header_html() {
   $module_path = drupal_get_path('module', 'epsacrop');
   drupal_add_js(array('epsacrop' => array('path' => $module_path)), 'setting');
   drupal_add_library('system', 'ui.dialog');
-  drupal_add_js(EPSACROP_JCROP_PATH . '/js/jquery.Jcrop.js');
-  drupal_add_js(EPSACROP_JSON2_PATH . '/json2.js', array('preprocess' => FALSE));
+  drupal_add_js(libraries_get_path('Jcrop') . '/js/jquery.Jcrop.js');
+  drupal_add_js(libraries_get_path('json2') . '/json2.js', array('preprocess' => FALSE));
   drupal_add_js($module_path . '/js/epsacrop.js');
 
-  drupal_add_css(EPSACROP_JCROP_PATH . '/css/jquery.Jcrop.css');
+  drupal_add_css(libraries_get_path('Jcrop') . '/css/jquery.Jcrop.css');
   drupal_add_css($module_path . '/css/epsacrop.css');
 }
 
@@ -874,7 +853,7 @@ function _epsacrop_include_header_html() {
  */
 function _epsacrop_jcrop_get_version() {
   $version = 0;
-  $filepath = EPSACROP_JCROP_PATH . '/js/jquery.Jcrop.js';
+  $filepath = libraries_get_path('Jcrop') . '/js/jquery.Jcrop.js';
   if (file_exists($filepath)) {
     $lines = file($filepath);
     array_shift($lines); // First line is simple comment
@@ -897,7 +876,7 @@ function _epsacrop_jcrop_get_version() {
  * @return void
  */
 function _epsacrop_is_json2_exists($display_message = FALSE) {
-  $filepath = EPSACROP_JSON2_PATH . '/json2.js';
+  $filepath = libraries_get_path('json2') . '/json2.js';
   if (file_exists($filepath)) {
     return TRUE;
   }

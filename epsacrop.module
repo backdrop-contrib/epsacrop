@@ -589,7 +589,7 @@ function epsacrop_form_file_entity_edit_alter(&$form, $form_state) {
   $file = $form['preview']['#file'];
   $info = image_get_info($file->uri);
   $setting['fid'] = $file->fid;
-  $setting['url'] = image_style_url('epsacrop_thumb', $file->uri);
+  $setting['url'] = str_replace('%27', '\%27', image_style_url('epsacrop_thumb', $file->uri));
   $setting['size'] = array($info['width'], $info['height']);
 
   // Fix a strange bug when the image's name contains strange chars, like +
@@ -649,7 +649,7 @@ function epsacrop_element_process($element, $form_state, $form) {
   if(isset($element['#file']) && is_object($element['#file']) && $file = $element['#file']) {
     $info = image_get_info($file->uri);
     $setting['fid'] = $file->fid;
-    $setting['url'] = image_style_url('epsacrop_thumb', $file->uri);
+    $setting['url'] = str_replace('%27', '\%27', image_style_url('epsacrop_thumb', $file->uri));
     $setting['size'] = array($info['width'], $info['height']);;
 
     // Fix a strange bug when the image's name contains strange chars, like +

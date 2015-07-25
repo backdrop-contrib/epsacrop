@@ -114,7 +114,7 @@ function epsacrop_dialog($entity_name, $field_name, $bundle, $fid) {
   $out = '';
   //@TODO: If a method is added to determine if the image is used elsewhere (or number of instances), add that condition for the message
   //related issue: http://drupal.org/node/1352722
-  if(module_exists('media')) {
+  if (module_exists('media')) {
     $out .= '<p>For convenience, cropping applies to <strong>all</strong> current and future content which uses this image. (If the image is from the library, changing the cropping will affect all existing content which uses the image.)</p>';
   }
   $out .='<div class="epsacrop-global">' . "\n";
@@ -125,7 +125,7 @@ function epsacrop_dialog($entity_name, $field_name, $bundle, $fid) {
   $out .='<ul class="epsacrop-presets-menu-ul">' . "\n";
   $i = 0;
 
-  if($entity_name == 'all' && $field_name == 'all' && $bundle == 'all') {
+  if ($entity_name == 'all' && $field_name == 'all' && $bundle == 'all') {
     //When on the file edit page, there is no entity_name, field_name or bundle. So make all styles available for editing
     $all_styles = array_keys(_epsacrop_load_styles());
     $styles = array('styles' => array_combine($all_styles, $all_styles));
@@ -484,7 +484,7 @@ function epsacrop_crop_image_reuse(stdClass $image, $settings) {
     return;
   }
   $style = _epsacrop_load_style($settings['jcrop_reuse']);
-  foreach($style['effects'] as $effect) {
+  foreach ($style['effects'] as $effect) {
     if ($effect['name'] == 'epsacrop_crop') {
       $GLOBALS['jcrop_style'] = $style['name'];
       image_effect_apply($image, $effect);
@@ -646,7 +646,7 @@ function epsacrop_element_process($element, $form_state, $form) {
       'field_name' => $element['#field_name'],
       'bundle' => $element['#bundle'],
   );
-  if(isset($element['#file']) && is_object($element['#file']) && $file = $element['#file']) {
+  if (isset($element['#file']) && is_object($element['#file']) && $file = $element['#file']) {
     $info = image_get_info($file->uri);
     $setting['fid'] = $file->fid;
     $setting['url'] = str_replace('%27', '\%27', image_style_url('epsacrop_thumb', $file->uri));
@@ -672,7 +672,7 @@ function epsacrop_element_process($element, $form_state, $form) {
       '#weight' => 0,
     );
   }
-  else if (isset($setting['fid'])) {
+  elseif (isset($setting['fid'])) {
     $markup = "<a href=\"javascript:Drupal.EPSACrop.dialog('" . $setting['entity_type'] . "', '" . $setting['field_name'] . "', '" . $setting['bundle'] . "', '" . $setting['fid'] . "', '" . $setting['url'] . "', [" . $setting['size'][0] . "," . $setting['size'][1] . "]);\">" . t("manage image crops") . "</a>";
     $element['epsacrop'] = array(
       '#type' => 'markup',
@@ -719,7 +719,7 @@ function _epsacrop_width_validate($element, &$form_state) {
   $value = $element['#value'];
 
   if (empty($value)) {
-    if(empty($form_state['complete form']['data']['height']['#value'])) {
+    if (empty($form_state['complete form']['data']['height']['#value'])) {
         form_error($element, t('Width cannot be empty without a height value'));
     }
   }
@@ -738,7 +738,7 @@ function _epsacrop_height_validate($element, &$form_state) {
   $value = $element['#value'];
 
   if (empty($value)) {
-    if(empty($form_state['complete form']['data']['width']['#value'])) {
+    if (empty($form_state['complete form']['data']['width']['#value'])) {
         form_error($element, t('Height cannot be empty without a width value'));
     }
   }

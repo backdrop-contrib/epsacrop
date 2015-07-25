@@ -498,7 +498,13 @@ function epsacrop_form_field_ui_field_edit_form_alter(&$form, $form_state) {
     $field = $form['#field'];
     $settings = $form_state['build_info']['args'][0]['settings'];
 
-    if (isset($field) && $field['type'] == 'image' || $field['type'] == 'media') {
+    if (
+      isset($field) && in_array($field['type'], array(
+        'image',
+        'media',
+        'file',
+      ))
+    ) {
       $styles = _epsacrop_load_styles();
       if (!empty($styles)) {
         $options = array();

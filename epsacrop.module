@@ -668,7 +668,7 @@ function epsacrop_element_process($element, $form_state, $form) {
 
   if ($element['#type'] == 'media') {
     //for media, need to include the media elements even if the file is not defined, because it's not defined when file initially selected
-    $element['#attached']['js'][] = array('type' => 'setting', 'data' => array( 'epsacrop_dialog' => array($element['#id'] => $setting)));
+    $element['#attached']['js'][] = array('type' => 'setting', 'data' => array( 'epsacrop_dialog' => array($element['#id'] . '--widget' => $setting)));
     $element['#attached']['js'][] = drupal_get_path('module', 'epsacrop') . '/js/epsacrop-media.js';
     $element['epsacrop'] = array(
       '#type' => 'link',

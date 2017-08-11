@@ -68,7 +68,7 @@ function epsacrop_requirements($phase) {
     // Required libraies wasn't found. Abort installation.
     if (!_epsacrop_jcrop_get_version()) {
       $requirements['epsacrop_jcrop']['value'] = $t('Not found');
-      $requirements['epsacrop_jcrop']['description'] = $t('The <a href="@jcrop">Jcrop</a> plugin is missing. <a href="@download">Download</a> and extract it in your <em>sites/all/libraries</em> directory.', array('@jcrop' => 'http://deepliquid.com/content/Jcrop.html', '@download' => 'http://code.google.com/p/jcrop/downloads/detail?name=jquery.Jcrop-0.9.8.zip&can=2'));
+      $requirements['epsacrop_jcrop']['description'] = $t('The <a href="@jcrop">Jcrop</a> plugin is missing. <a href="@download">Download</a> and extract it in your <em>sites/all/libraries</em> directory.', array('@jcrop' => 'http://deepliquid.com/content/Jcrop.html', '@download' => 'https://github.com/tapmodo/Jcrop/archive/master.zip'));
       $requirements['epsacrop_jcrop']['severity'] = REQUIREMENT_ERROR;
     }
     if (!_epsacrop_is_json2_exists(FALSE)) {

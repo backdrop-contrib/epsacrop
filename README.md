@@ -1,5 +1,6 @@
 
--- SUMMARY --
+EPSA Crop - Image Cropping
+======================
 
 EPSA Crop is a module that allows a user to choose coordinates for different
 styles on an image. If a user defines coordinates EPSACrop will create a image
@@ -7,22 +8,21 @@ with the points.
 
 If the user doesn't change the coordinates, the normal crop process is applied.
 
-You can try out a demonstration of the Drupal 6 version of this module, here:
-http://www.aswissidea.com
 
+Requirements
+------------
 
--- REQUIRENENTS --
-
-EPSACrop requires that the following module is enabled:
+EPSACrop requires that the following modules are enabled:
  - Image
- - Libraries
+ - [Libraries](https://www.drupal.org/project/libraries)
 
 EPSACrop requires that the following external libraries are installed:
- - JCrop (http://deepliquid.com/content/Jcrop.html)
- - json2 (https://github.com/douglascrockford/JSON-js)
+ - [JCrop](https://jcrop.com/)
+ - [json2](https://github.com/douglascrockford/JSON-js)
 
 
--- INSTALLATION --
+Installation
+------------
 
 1. Download the EPSAcrop module and place it into your modules directory
    (ex. sites/all/modules or sites/all/modules/contrib)
@@ -35,7 +35,8 @@ EPSACrop requires that the following external libraries are installed:
 
 4. Go to admin/build/modules and enable EPSA Crop.
 
--- CONFIGURATION --
+Configuration
+------------
 
 1. Enable the module and set the permissions at People -> Permissions.
 
@@ -51,14 +52,22 @@ EPSACrop requires that the following external libraries are installed:
    the field display settings are located at
    Structure -> Content Type -> {type} -> Manage display. Select the image style
    chosen in step 3 again to see your cropped image display.
-  
-
--- TROUBLESHOOTING --
-
-For questions, comments, or bug reports, please use the issue queue:
-https://drupal.org/project/issues/epsacrop?categories=All
 
 
-Current maintainers:
-* Yvan Marques (yvmarques) - http://drupal.org/user/298685
-* gbaudoin - http://drupal.org/user/377795
+
+Issues
+------
+Bugs and feature requests should be reported in [the Issue Queue](https://github.com/backdrop-contrib/epsacrop/issues).
+
+
+Current Maintainers
+-------------------
+* [Juan Olalla](https://www.drupal.org/u/juanolalla)
+* [cb](https://www.drupal.org/u/cb) (Drupal 7)
+
+
+Credits
+-------
+
+- Ported to Backdrop CMS by [Juan Olalla](https://www.drupal.org/u/juanolalla).
+- Originally written for Drupal by [cb](https://www.drupal.org/u/cb).

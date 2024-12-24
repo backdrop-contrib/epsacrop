@@ -1,9 +1,11 @@
+type = module
 name = Epsa Crop
 description = Allow an user to choose coordinates for different presets on an image.
-version = 7.x-2.x-dev
-backdrop = 1.x
-type = module
 package = Media
+version = VERSION
+backdrop = 1.x
+
+
 dependencies[] = image
 dependencies[] = libraries
 

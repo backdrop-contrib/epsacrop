@@ -2,7 +2,7 @@
 //This behavior handles the EPSA Crop button on content create and edit
 //It is necessary in order to have the button immediately after an image is added, because the file data is not available to PHP when the form is built
 //The file information on newly-added images must be obtained via Ajax
-Drupal.behaviors.EPSACropMediaElement = {
+Backdrop.behaviors.EPSACropMediaElement = {
   attach: function (context, settings) {
     // For each widget (in case of multi-entry)
     $('.media-widget', context, settings).once('epsaCropLaunch', function () {
@@ -32,17 +32,17 @@ Drupal.behaviors.EPSACropMediaElement = {
         var fid = fidField.val();
         if(!fileInfo.fid || fileInfo.fid != fid) {
           //if no file info or file has been replaced, get if via ajax using the fid
-          $.get(Drupal.settings.basePath +'?q=crop/ajaxinfo/' + fid, function(data) {
+          $.get(Backdrop.settings.basePath +'?q=crop/ajaxinfo/' + fid, function(data) {
             if(data.url && data.height && data.width) {
               fileInfo.fid = fid;
               fileInfo.url = data.url;
               fileInfo.size = [ data.width, data.height ];
-              Drupal.EPSACrop.dialog(fileInfo.entity_type, fileInfo.field_name, fileInfo.bundle, fileInfo.fid, fileInfo.url, fileInfo.size);
+              Backdrop.EPSACrop.dialog(fileInfo.entity_type, fileInfo.field_name, fileInfo.bundle, fileInfo.fid, fileInfo.url, fileInfo.size);
             }
           });
         }
         else {
-          Drupal.EPSACrop.dialog(fileInfo.entity_type, fileInfo.field_name, fileInfo.bundle, fileInfo.fid, fileInfo.url, fileInfo.size);
+          Backdrop.EPSACrop.dialog(fileInfo.entity_type, fileInfo.field_name, fileInfo.bundle, fileInfo.fid, fileInfo.url, fileInfo.size);
         }
       });
 
@@ -60,7 +60,7 @@ Drupal.behaviors.EPSACropMediaElement = {
   }
 }
 
-Drupal.behaviors.EPSACropMediaElement.helper = {
+Backdrop.behaviors.EPSACropMediaElement.helper = {
   attach: function (context, settings) {
 
   }

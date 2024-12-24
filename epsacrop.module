@@ -23,49 +23,16 @@ function epsacrop_permission() {
       'title' => t("Edit crops"),
       'description' => t("Allow the user to edit coordinates for each style (show the link field)."),
     ),
-    /*
- 'epsacrop edit my crops' => array(
- 'title' => t(""),
- 'description' => t("")
- ),
- */
     'epsacrop delete all crops' => array(
       'title' => t("Delete crops"),
       'description' => t("Allow the user to delete coordinates and use the default style."),
     ),
-    /*
- 'epsacrop delete my crops' => array(
- 'title' => t(""),
- 'description' => t("")
- ),
- 'epsacrop view all crops' => array(
- 'title' => t(""),
- 'description' => t("")
- ),
- 'epsacrop view own crops' => array(
- 'title' => t(""),
- 'description' => t("")
- ),
- 'epsacrop edit my crops in place' => array(
- 'title' => t(""),
- 'description' => t("")
- ),
- 'epsacrop edit my crops with all styles' => array(
- 'title' => t(""),
- 'description' => t("")
- ),
- 'epsacrop edit all crops with all styles' => array(
- 'title' => t("Edit crop in place"),
- 'description' => t("When it's a image from EPSACrop, add a link that allow the user edit coordonates in place.")
- ),
- */
     'epsacrop administer available crops' => array(
       'title' => t("Administer available crops"),
       'description' => t("Allow user to select which styles are shown in each field."),
     ),
   );
 }
-
 
 /**
  * Implements hook_menu().
@@ -234,30 +201,6 @@ function epsacrop_ajaxinfo($fid) {
  */
 function epsacrop_file_delete($file) {
   _epsacrop_delete_file($file->fid);
-}
-
-
-/**
- * Implements hook_image_default_styles().
- *
- * @access public
- * @return array
- */
-function epsacrop_image_default_styles() {
-  $styles = array();
-  $styles['epsacrop_thumb'] = array();
-  $styles['epsacrop_thumb']['effects'] = array(
-    array(
-      'name' => 'image_scale',
-      'data' => array(
-        'width' => 512,
-        'height' => 384,
-        'upscale' => 0,
-      ),
-      'weight' => 0,
-    ),
-  );
-  return $styles;
 }
 
 /**

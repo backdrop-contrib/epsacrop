@@ -95,7 +95,7 @@
           target.attr({'src': img});
           var targetWait = $('<p>loading...</p>');
           target.parent().append(targetWait);
-          target.load(function() {
+          target.on("load", function() {
             targetWait.hide();
             Backdrop.EPSACrop.api = $.Jcrop('#' + target.attr('id'), {
               aspectRatio: (aspectRatio.length > 0) ? aspectRatio : (w / h),

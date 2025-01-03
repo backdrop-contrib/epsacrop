@@ -25,7 +25,7 @@
         $.post(Backdrop.settings.basePath + pathPrefix + 'crop/ajax/put/' + delta + '/' + token, {'coords': JSON.stringify(Backdrop.EPSACrop.presets)});
         var field = field_name.replace(/_/g, '-');
         var welem = $('div[id*="' + field + '"]').eq(0);
-        if (welem.find('.warning').size() == 0) {
+        if (welem.find('.warning').length == 0) {
           welem.prepend('<div class="tabledrag-changed-warning messages warning">' + Backdrop.t("Changes made in image crops will not be saved until the form is submitted.") + '</div>');
         }
         $(this).dialog('close');

@@ -391,7 +391,7 @@ function epsacrop_crop_image(stdClass $image, $settings) {
                 if (isset($settings['disable_scale']) && $settings['disable_scale']) {
                   return TRUE;
                 }
-                return image_scale($image, $settings['width'], $settings['height']);
+                return image_scale($image, $settings['width'], $settings['height'], TRUE);
               }
             }
           }
@@ -399,7 +399,8 @@ function epsacrop_crop_image(stdClass $image, $settings) {
       }
     }
   }
-  return (empty($settings['jcrop_settings']['fallback']))?image_crop_effect($image, $settings) : TRUE;
+  $cropping_function = isset($settings['disable_scale']) && $settings['disable_scale'] ? 'image_crop_effect' : 'image_scale_and_crop_effect';
+  return (empty($settings['jcrop_settings']['fallback']))? $cropping_function($image, $settings) : TRUE;
 }
 
 /**
@@ -835,7 +836,6 @@ function _epsacrop_include_header_html() {
   backdrop_add_css(libraries_get_path('Jcrop') . '/css/jquery.Jcrop.css');
   backdrop_add_css($module_path . '/css/epsacrop.css');
 }
-
 
 
 /**

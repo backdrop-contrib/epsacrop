@@ -110,8 +110,9 @@ function epsacrop_install() {
  */
 function epsacrop_uninstall() { }
 
-// TODO The old hook_update_N functions cannot be applied to Backdrop.
-function epsacrop_update_7201() { }
-
-// TODO The old hook_update_N functions cannot be applied to Backdrop.
-function epsacrop_update_7202() { }
+/**
+ * Implements hook_update_last_removed().
+ */
+function modulename_update_last_removed() {
+  return 7202;
+}

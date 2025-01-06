@@ -24,8 +24,7 @@ EPSACrop requires that the following external libraries are installed:
 Installation
 ------------
 
-1. Download the EPSAcrop module and place it into your modules directory
-   (ex. sites/all/modules or sites/all/modules/contrib)
+1. Download the EPSAcrop module and place it into your modules directory.
 
 2. Download and unpack the JCrop library. Rename the resulting directory to
    'Jcrop' and place into the libraries directory (ex.: sites/all/libraries/Jcrop).
@@ -63,11 +62,10 @@ Bugs and feature requests should be reported in [the Issue Queue](https://github
 Current Maintainers
 -------------------
 * [Juan Olalla](https://www.drupal.org/u/juanolalla)
-* [cb](https://www.drupal.org/u/cb) (Drupal 7)
 
 
 Credits
 -------
 
 - Ported to Backdrop CMS by [Juan Olalla](https://www.drupal.org/u/juanolalla).
-- Originally written for Drupal by [cb](https://www.drupal.org/u/cb).
+- Drupal 7 maintainer [cb](https://www.drupal.org/u/cb).

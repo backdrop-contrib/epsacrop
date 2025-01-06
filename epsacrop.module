@@ -151,9 +151,7 @@ function epsacrop_ajax($op, $fid) {
     case 'put':
       if (isset($_POST) && (isset($_POST['coords']) && !empty($_POST['coords']))) {
         // If the json_decode returns null that means we got an invalid JSON or
-
         // it reaches the recursion limit.
-
         if (($values = backdrop_json_decode($_POST['coords'])) === NULL) {
           backdrop_access_denied();
           backdrop_exit();
@@ -307,11 +305,6 @@ function epsacrop_crop_image_form($data) {
     // '#allow_negative' => FALSE,
   );
 
-  /*
-   $form['jcrop_settings']['minsize'] = array();
-   $form['jcrop_settings']['maxsize'] = array();
-   */
-
   $form['jcrop_settings']['bgcolor'] = array(
     '#type' => 'textfield',
     '#title' => t('Background color'),
@@ -329,11 +322,8 @@ function epsacrop_crop_image_form($data) {
     '#title' => t('Background opacity'),
     '#description' => t("Opacity of outer image when cropping"),
     '#default_value' => isset($data['jcrop_settings']['bgopacity']) ? $data['jcrop_settings']['bgopacity'] : '',
-    // '#field_suffix' => ' ' . t('pixels'),
     '#required' => TRUE,
     '#size' => 10,
-    //'#element_validate' => array('image_effect_integer_validate'),
-    //'#allow_negative' => FALSE,
   );
 
   $form['jcrop_settings']['fallback'] = array(
@@ -373,7 +363,6 @@ function epsacrop_crop_image(stdClass $image, $settings) {
       }
       if (!empty($style_name)) {
         // Trigger presave hook.
-
         module_invoke_all('epsacrop_crop_image_presave', $image, $settings, $coords, $style_name);
 
         $style = _epsacrop_load_style($style_name);
@@ -386,7 +375,6 @@ function epsacrop_crop_image(stdClass $image, $settings) {
             if (!empty($coord)) {
               if (image_crop($image, $coord['x'], $coord['y'], $coord['w'], $coord['h'])) {
                 // Trigger postsave hook.
-
                 module_invoke_all('epsacrop_crop_image_postsave', $image, $settings, $coords, $style_name);
                 if (isset($settings['disable_scale']) && $settings['disable_scale']) {
                   return TRUE;
@@ -413,8 +401,8 @@ function epsacrop_crop_image(stdClass $image, $settings) {
 function epsacrop_crop_image_reuse_form($data) {
   $styles = array_keys(_epsacrop_load_styles());
   $styles = array_combine($styles, $styles);
-  //exclude the current style
 
+  //exclude the current style
   if ($key = array_search(arg(5), $styles)) {
     unset($styles[$key]);
   }
@@ -499,27 +487,8 @@ function epsacrop_form_field_ui_field_edit_form_alter(&$form, $form_state) {
           '#options' => $options,
           '#default_value' => isset($settings['epsacrop']['styles']) ? $settings['epsacrop']['styles'] : array(),
         );
+
         //@TODO Add the possibility to change the size of dialog (for example, for field with only one style)
-
-        /*
-         $form['instance']['settings']['epsacrop']['dialog_width'] = array(
-         '#type' => 'textfield',
-         '#title' => t('Dialog width'),
-         '#default_value' => isset($settings['epsacrop']['dialog_width']) ? $settings['epsacrop']['dialog_width'] : '512',
-         '#field_suffix' => ' ' . t('pixels'),
-         '#required' => TRUE,
-         '#size' => 10,
-         );
-
-         $form['instance']['settings']['epsacrop']['dialog_height'] = array(
-         '#type' => 'textfield',
-         '#title' => t('Dialog height'),
-         '#default_value' => isset($settings['epsacrop']['dialog_height']) ? $settings['epsacrop']['dialog_height'] : '384',
-         '#field_suffix' => ' ' . t('pixels'),
-         '#required' => TRUE,
-         '#size' => 10,
-         );
-         */
       }
     }
   }
@@ -615,7 +584,6 @@ function epsacrop_element_process($element, $form_state, $form) {
     $setting['size'] = array($info['width'], $info['height']);
 
     // Fix a strange bug when the image's name contains strange chars, like +
-
     $preview_file = image_style_path('epsacrop_thumb', $file->uri);
     if (!file_exists($preview_file)) {
       image_style_create_derivative(image_style_load('epsacrop_thumb'), $file->uri, $preview_file);
@@ -624,7 +592,6 @@ function epsacrop_element_process($element, $form_state, $form) {
 
   if ($element['#type'] == 'media') {
     //for media, need to include the media elements even if the file is not defined, because it's not defined when file initially selected
-
     $element['#attached']['js'][] = array(
       'type' => 'setting',
       'data' => array('epsacrop_dialog' => array($element['#id'] . '--widget' => $setting)),
@@ -796,7 +763,6 @@ function _epsacrop_load_styles_by_instance($entity_type, $field_name, $bundle) {
   }
 
   // Allow other modules to alter list of styles
-
   backdrop_alter('epsacrop_load_styles', $styles, $entity_type, $field_name, $bundle);
 
   return $styles;
@@ -832,7 +798,6 @@ function _epsacrop_include_header_html() {
   backdrop_add_js(libraries_get_path('Jcrop') . '/js/jquery.Jcrop.js');
   backdrop_add_js(libraries_get_path('json2') . '/json2.js', array('preprocess' => FALSE));
   backdrop_add_js($module_path . '/js/epsacrop.js');
-
   backdrop_add_css(libraries_get_path('Jcrop') . '/css/jquery.Jcrop.css');
   backdrop_add_css($module_path . '/css/epsacrop.css');
 }
@@ -929,11 +894,10 @@ function _epsacrop_add_file($fid, $coords) {
  */
 function _epsacrop_save_coords($fid, $coords) {
   // Check fid is for a valid file.
-
   if ($file = file_load($fid)) {
     $info = image_get_info($file->uri);
-    // Not an image.
 
+    // Not an image.
     if (!$info) {
       return FALSE;
     }
@@ -943,9 +907,7 @@ function _epsacrop_save_coords($fid, $coords) {
 
     foreach ($field_coords as $field_coord) {
       // Check we have coordinates passed and that they are not larger
-
       // than the image.
-
       if (!empty($field_coord) && (
           $field_coord['x'] < 0
           || $field_coord['y'] < 0

@@ -4,7 +4,6 @@
  * install file for epsacrop.module
  */
 
-
 /**
  * Implements hook_schema().
  *
@@ -32,7 +31,6 @@ function epsacrop_schema() {
   );
   return $schema;
 }
-
 
 /**
  * Implements hook_requirements().
@@ -87,7 +85,6 @@ function epsacrop_requirements($phase) {
   return $requirements;
 }
 
-
 /**
  * Implements hook_install().
  *
@@ -101,18 +98,9 @@ function epsacrop_install() {
     ->execute();
 }
 
-
-/**
- * Implements hook_uninstall().
- *
- * @access public
- * @return void
- */
-function epsacrop_uninstall() { }
-
 /**
  * Implements hook_update_last_removed().
  */
-function modulename_update_last_removed() {
+function epsacrop_update_last_removed() {
   return 7202;
 }

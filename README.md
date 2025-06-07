@@ -14,9 +14,8 @@ Requirements
 
 EPSACrop requires that the following modules are enabled:
  - Image
- - [Libraries](https://www.drupal.org/project/libraries)
 
-EPSACrop requires that the following external libraries are installed:
+EPSACrop bundles the following libraries inside the module:
  - [JCrop](https://jcrop.com/)
  - [json2](https://github.com/douglascrockford/JSON-js)
 
@@ -26,13 +25,7 @@ Installation
 
 1. Download the EPSAcrop module and place it into your modules directory.
 
-2. Download and unpack the JCrop library. Rename the resulting directory to
-   'Jcrop' and place into the libraries directory (ex.: sites/all/libraries/Jcrop).
-
-3. Download the and unpack the json2 library. Rename the resulting directory to
-   'json2' and place it into the libraries directory (ex.: sites/all/libraries/json2).
-
-4. Go to admin/build/modules and enable EPSA Crop.
+2. Go to admin/build/modules and enable EPSA Crop.
 
 Configuration
 ------------

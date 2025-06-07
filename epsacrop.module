@@ -80,8 +80,8 @@ function epsacrop_menu() {
  */
 function epsacrop_dialog($entity_name, $field_name, $bundle, $fid) {
   $out = '';
-  //@TODO: If a method is added to determine if the image is used elsewhere (or number of instances), add that condition for the message
 
+  //@TODO: If a method is added to determine if the image is used elsewhere (or number of instances), add that condition for the message
   //related issue: http://drupal.org/node/1352722
 
   if (module_exists('media')) {
@@ -104,7 +104,6 @@ function epsacrop_dialog($entity_name, $field_name, $bundle, $fid) {
 
   if ($entity_name == 'all' && $field_name == 'all' && $bundle == 'all') {
     //When on the file edit page, there is no entity_name, field_name or bundle. So make all styles available for editing
-
     $all_styles = array_keys(_epsacrop_load_styles());
     $styles = array('styles' => array_combine($all_styles, $all_styles));
   }
@@ -129,7 +128,6 @@ function epsacrop_dialog($entity_name, $field_name, $bundle, $fid) {
   echo $out;
   backdrop_exit();
 }
-
 
 /**
  * epsacrop_ajax function.
@@ -262,21 +260,17 @@ function epsacrop_crop_image_form($data) {
 
   //@TODO Propose a alternative style (whitout Crop Dialog effect) instead of this
 
-
   $form = image_crop_form($data);
 
   // Override default
-
   $form['width']['#required'] = FALSE;
   $form['height']['#required'] = FALSE;
 
   // Add validation callbacks to ensure that at least one value has been added
-
   $form['height']['#element_validate'] = array('_epsacrop_height_validate');
   $form['width']['#element_validate'] = array('_epsacrop_width_validate');
 
   // Change description for the anchor
-
   $form['anchor']['#description'] = t("The part of the image that will be retained during the crop if no coordinates are set.");
 
   $form['disable_scale'] = array(
@@ -402,7 +396,7 @@ function epsacrop_crop_image_reuse_form($data) {
   $styles = array_keys(_epsacrop_load_styles());
   $styles = array_combine($styles, $styles);
 
-  //exclude the current style
+  // Exclude the current style.
   if ($key = array_search(arg(5), $styles)) {
     unset($styles[$key]);
   }
@@ -526,7 +520,6 @@ function epsacrop_form_file_entity_edit_alter(&$form, $form_state) {
   $setting['size'] = array($info['width'], $info['height']);
 
   // Fix a strange bug when the image's name contains strange chars, like +
-
   $preview_file = image_style_path('epsacrop_thumb', $file->uri);
   if (!file_exists($preview_file)) {
     image_style_create_derivative(image_style_load('epsacrop_thumb'), $file->uri, $preview_file);
@@ -620,7 +613,6 @@ function epsacrop_element_process($element, $form_state, $form) {
   return $element;
 }
 
-
 /**
  * Validate a aspect ration information.
  *
@@ -662,7 +654,6 @@ function _epsacrop_width_validate($element, &$form_state) {
   }
 }
 
-
 /**
  * Validate height information.
  *
@@ -680,7 +671,6 @@ function _epsacrop_height_validate($element, &$form_state) {
     }
   }
 }
-
 
 /**
  * Helper function that get all styles with epsacrop effect.
@@ -721,7 +711,6 @@ function _epsacrop_load_style($style_name) {
   return FALSE;
 }
 
-
 /**
  * Return the effect issue from the module.
  *
@@ -741,7 +730,6 @@ function _epsacrop_get_effect($style) {
   }
   return FALSE;
 }
-
 
 /**
  * Get all style that are attach to one instance of field.
@@ -768,7 +756,6 @@ function _epsacrop_load_styles_by_instance($entity_type, $field_name, $bundle) {
   return $styles;
 }
 
-
 /**
  * Helper function that get the style name from image url.
  *
@@ -784,6 +771,37 @@ function _epsacrop_get_style_name_from_url() {
   return FALSE;
 }
 
+/**
+ * Implements hook_library_info().
+ */
+function epsacrop_library_info() {
+  $module_path = backdrop_get_path('module', 'epsacrop');
+
+  // JCrop.
+  $libraries['jcrop'] = array(
+    'title' => 'JCrop',
+    'website' => 'https://jcrop.com/',
+    'version' => '0.9.15',
+    'js' => array(
+      $module_path . '/libraries/jcrop/js/jquery.Jcrop.js' => array(),
+    ),
+    'css' => array(
+      $module_path . '/libraries/jcrop/css/jquery.Jcrop.css',
+    ),
+  );
+
+  // JSON-js.
+  $libraries['json-js'] = array(
+    'title' => 'JSON-js',
+    'website' => 'https://github.com/douglascrockford/JSON-js',
+    'version' => 'master',
+    'js' => array(
+      $module_path . '/libraries/json-js/json2.js' => array('preprocess' => FALSE),
+    ),
+  );
+
+  return $libraries;
+}
 
 /**
  * This function include all files (JavaScript & CSS) needed by the module.
@@ -795,56 +813,11 @@ function _epsacrop_include_header_html() {
   $module_path = backdrop_get_path('module', 'epsacrop');
   backdrop_add_js(array('epsacrop' => array('path' => $module_path)), 'setting');
   backdrop_add_library('system', 'ui.dialog');
-  backdrop_add_js(libraries_get_path('Jcrop') . '/js/jquery.Jcrop.js');
-  backdrop_add_js(libraries_get_path('json2') . '/json2.js', array('preprocess' => FALSE));
+  backdrop_add_library('epsacrop', 'jcrop');
+  backdrop_add_library('epsacrop', 'json-js');
   backdrop_add_js($module_path . '/js/epsacrop.js');
-  backdrop_add_css(libraries_get_path('Jcrop') . '/css/jquery.Jcrop.css');
   backdrop_add_css($module_path . '/css/epsacrop.css');
 }
-
-
-/**
- * Return the version of jcrop library.
- *
- * @access public
- * @return void
- */
-function _epsacrop_jcrop_get_version() {
-  $version = 0;
-  $filepath = libraries_get_path('Jcrop') . '/js/jquery.Jcrop.js';
-  if (file_exists($filepath)) {
-    $lines = file($filepath);
-    array_shift($lines); // First line is simple comment
-
-    if (preg_match('/v(.*)/', array_shift($lines), $matches)) {
-      $version = $matches[1];
-    }
-    else {
-      backdrop_set_message(t('Could be give the version of Jcrop %path, check your install.', array('%path' => $filepath)), 'error');
-      $version = 0;
-    }
-  }
-  return $version;
-}
-
-
-/**
- * Check if json2.js is findable.
- *
- * @access private
- * @return void
- */
-function _epsacrop_is_json2_exists($display_message = FALSE) {
-  $filepath = libraries_get_path('json2') . '/json2.js';
-  if (file_exists($filepath)) {
-    return TRUE;
-  }
-  if ($display_message) {
-    backdrop_set_message(t('Could be find the json2.js file %path, check your install.', array('%path' => $filepath)), 'error');
-  }
-}
-
-
 
 /**
  * Check if we've coordonates for one file.
@@ -865,7 +838,6 @@ function _epsacrop_fid_exists($fid) {
   return 0;
 }
 
-
 /**
  * Insert coordonates for one file in the database.
  *
@@ -882,7 +854,6 @@ function _epsacrop_add_file($fid, $coords) {
   ))
     ->execute();
 }
-
 
 /**
  * Save the coordonates in the database.
@@ -933,7 +904,6 @@ function _epsacrop_save_coords($fid, $coords) {
   }
 }
 
-
 /**
  * Delete the coordonates in the database.
  *
@@ -946,7 +916,6 @@ function _epsacrop_delete_file($fid) {
     ->condition('fid', $fid)
     ->execute();
 }
-
 
 /**
  * Get all coordonates for one file.
@@ -973,7 +942,6 @@ function _epsacrop_get_coords_from_fid($fid) {
   return $files[$fid];
 }
 
-
 /**
  * Try to find the fid from a uri.
  *
@@ -997,7 +965,6 @@ function _epsacrop_get_fid_from_uri($uri) {
   }
   return $fids[$uri];
 }
-
 
 /**
  * Try to get the uri from a fid.
